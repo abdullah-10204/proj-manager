@@ -231,7 +231,7 @@ export default function Dashboard() {
             {projects.map((project) => (
               <Link
                 key={project.id}
-                href={`/${project.id}/project-details`}
+                href={`/${project.id}/${project.name}`}
                 className="bg-white rounded-xl border border-gray-200 hover:border-blue-300 transition-all hover:shadow-md overflow-hidden group"
               >
                 <div className="p-5">
