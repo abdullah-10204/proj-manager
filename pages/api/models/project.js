@@ -47,10 +47,7 @@ const ProjectSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    projectTeam: {
-        type: String,
-        required: false,
-    },
+
     folders: [FolderSchema],
     checklist: [ChecklistItemSchema]
 }, { timestamps: true });

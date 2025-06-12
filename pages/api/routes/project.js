@@ -7,7 +7,8 @@ import {
     getSubfolderFiles,
     getProjectFoldersWithSubfolders,
     uploadFileToFolder,
-    deleteProject
+    deleteProject,
+    addFolder
 } from "../controllers/project";
 
 export default async function handler(req, res) {
@@ -32,6 +33,8 @@ export default async function handler(req, res) {
                     return await uploadFileToFolder(req, res);
                 case "deleteProject":
                     return await deleteProject(req, res);
+                case "addFolder":
+                    return await addFolder(req, res);
                 default:
                     return res.status(400).json({ message: "Invalid action parameter" });
             }

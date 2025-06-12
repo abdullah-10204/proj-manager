@@ -5,12 +5,11 @@ export const createProject = async (req, res) => {
   try {
     await connectToDatabase();
 
-    const { projectName, projectTeam } = req.body;
+    const { projectName } = req.body;
 
     const newProject = new Project({
-      projectName,
-      projectTeam
-    });
+      projectName
+        });
 
     const savedProject = await newProject.save();
     res.status(201).json(savedProject);
@@ -65,6 +64,44 @@ export const addSubfolder = async (req, res) => {
     res.status(200).json(project);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+export const addFolder = async (req, res) => {
+  try {
+    await connectToDatabase();
+    
+    const { name,projectId } = req.body;
+
+    if (!name) {
+      return res.status(400).json({ error: "Folder name is required" });
+    }
+
+    const newFolder = {
+      name,
+      subfolders: [],
+      files: []
+    };
+
+    const updatedProject = await Project.findByIdAndUpdate(
+      projectId,
+      { $push: { folders: newFolder } },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedProject) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    res.status(201).json({
+      message: "Folder added successfully",
+      folder: newFolder,
+      project: updatedProject
+    });
+
+  } catch (error) {
+    console.error("Error adding folder:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 

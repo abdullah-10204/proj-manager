@@ -58,7 +58,7 @@ function SigninUser() {
       if (email === "adminuser123@gmail.com" && password === "admin123") {
         Cookies.set('Role', 'Admin', { expires, secure: true, sameSite: 'strict' });
         Cookies.set('isAuthenticated', 'true', { expires, secure: true, sameSite: 'strict' });
-        router.push("/admin");
+        router.push("/dashboard");
       } else if (email === "user123@gmail.com" && password === "user123") {
         Cookies.set('Role', 'User', { expires, secure: true, sameSite: 'strict' });
         Cookies.set('isAuthenticated', 'true', { expires, secure: true, sameSite: 'strict' });

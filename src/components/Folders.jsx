@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreVertical, Plus, FolderPlus, Upload, File, Folder } from "lucide-react";
 import { createClient } from '@supabase/supabase-js';
+import Cookies from "js-cookie";
 
 const supabaseUrl = "https://rixdrbokebnvidwyzvzo.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpeGRyYm9rZWJudmlkd3l6dnpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI2MjMzMzIsImV4cCI6MjA0ODE5OTMzMn0.Zhnz5rLRoIhtHyF52pFjzYijNdxgZBvEr9LtOxR2Lhw";
@@ -24,11 +25,10 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 const FileBrowser = ({ folders: initialFolders, projectId }) => {
   const [folders, setFolders] = useState(initialFolders);
-  console.log("folders", folders);
-
+  const role = Cookies.get("Role");
   const [currentPath, setCurrentPath] = useState([]);
-  const [newSubfolderName, setNewSubfolderName] = useState("");
-  const [isSubfolderDialogOpen, setIsSubfolderDialogOpen] = useState(false);
+  const [newFolderName, setNewFolderName] = useState("");
+  const [isFolderDialogOpen, setIsFolderDialogOpen] = useState(false);
   const [selectedFolderId, setSelectedFolderId] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -73,13 +73,54 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
     }
   };
 
+  const handleAddFolder = () => {
+    setSelectedFolderId(null);
+    setIsFolderDialogOpen(true);
+  };
+
   const handleAddSubfolder = (folderId) => {
     setSelectedFolderId(folderId);
-    setIsSubfolderDialogOpen(true);
+    setIsFolderDialogOpen(true);
+  };
+
+  const confirmAddFolder = async () => {
+    if (!newFolderName.trim()) return;
+
+    try {
+      const response = await fetch('/api/routes/project?action=addFolder', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          projectId,
+          name: newFolderName,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create folder');
+      }
+
+      const updatedProject = await response.json();
+      setFolders(updatedProject.folders);
+      setIsFolderDialogOpen(false);
+      setNewFolderName("");
+
+      // Refresh the page to see latest changes
+      window.location.reload();
+
+      // Alternatively, if you don't want full page reload:
+      // fetchFolders(); // You would need to implement this function
+
+    } catch (error) {
+      console.error("Error creating folder:", error);
+      alert("Error creating folder");
+    }
   };
 
   const confirmAddSubfolder = async () => {
-    if (!newSubfolderName.trim()) return;
+    if (!newFolderName.trim()) return;
 
     try {
       const response = await fetch('/api/routes/project?action=addSubfolder', {
@@ -90,8 +131,7 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
         body: JSON.stringify({
           projectId,
           folderId: selectedFolderId,
-          subfolderName: newSubfolderName,
-          type: 'folder'
+          subfolderName: newFolderName,
         }),
       });
 
@@ -101,8 +141,8 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
 
       const updatedProject = await response.json();
       setFolders(updatedProject.folders);
-      setIsSubfolderDialogOpen(false);
-      setNewSubfolderName("");
+      setIsFolderDialogOpen(false);
+      setNewFolderName("");
       alert("Subfolder created successfully");
 
     } catch (error) {
@@ -122,7 +162,6 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}.${fileExt}`;
 
-      // Construct full Supabase storage path
       const fullPath = currentPath.length > 0
         ? `projects/${projectId}/${currentPath.join('/')}/${fileName}`
         : `projects/${projectId}/${fileName}`;
@@ -133,7 +172,6 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
 
       if (error) throw error;
 
-      // Decide which API endpoint to call
       const isNestedUpload = currentPath.length > 1;
       const apiEndpoint = isNestedUpload
         ? '/api/routes/project?action=uploadFileToSubfolder'
@@ -142,8 +180,8 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
       const requestBody = isNestedUpload
         ? {
           projectId,
-          folderId: currentPath[0], // Top-level folder
-          subfolderId: currentPath[currentPath.length - 1], // Deepest subfolder
+          folderId: currentPath[0],
+          subfolderId: currentPath[currentPath.length - 1],
           fileUrl: data.path,
           fileName: file.name
         }
@@ -168,11 +206,9 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
 
       const result = await response.json();
 
-      // ✅ Update local folders state
       setFolders(prevFolders => {
         const updateRecursively = (foldersList, path = []) => {
           return foldersList.map(folder => {
-            // Uploading to root folder
             if (!isNestedUpload && folder._id === folderId) {
               return {
                 ...folder,
@@ -180,7 +216,6 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
               };
             }
 
-            // Uploading to subfolder
             if (isNestedUpload && folder._id === path[0]) {
               if (path.length === 2) {
                 return {
@@ -216,7 +251,7 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
       alert("Error uploading file");
     } finally {
       setIsUploading(false);
-      event.target.value = ''; // Clear the file input
+      event.target.value = '';
     }
   };
 
@@ -224,70 +259,80 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
 
   return (
     <div className="max-w-7xl mx-auto mt-8 rounded-lg shadow-md p-6 bg-white">
-      {/* Breadcrumb navigation */}
-      <div className="flex items-center mb-6">
-        <button
-          onClick={navigateUp}
-          disabled={currentPath.length === 0}
-          className={`mr-2 ${currentPath.length === 0 ? 'text-gray-400' : 'text-blue-600 hover:text-blue-800'}`}
-        >
-          ← Up
-        </button>
-        <div className="flex items-center text-sm text-gray-600">
-          <span>Root</span>
-          {currentPath.map((pathId, index) => {
-            let pathItem;
-            let currentLevel = folders;
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center">
+          <button
+            onClick={navigateUp}
+            disabled={currentPath.length === 0}
+            className={`mr-2 ${currentPath.length === 0 ? 'text-gray-400' : 'text-blue-600 hover:text-blue-800'}`}
+          >
+            ← Up
+          </button>
+          <div className="flex items-center text-sm text-gray-600">
+            <span>Root</span>
+            {currentPath.map((pathId, index) => {
+              let pathItem;
+              let currentLevel = folders;
 
-            for (let i = 0; i <= index; i++) {
-              pathItem = currentLevel.find(item => item._id === currentPath[i]);
-              if (!pathItem) break;
-              currentLevel = pathItem.subfolders || [];
-            }
+              for (let i = 0; i <= index; i++) {
+                pathItem = currentLevel.find(item => item._id === currentPath[i]);
+                if (!pathItem) break;
+                currentLevel = pathItem.subfolders || [];
+              }
 
-            return pathItem ? (
-              <span key={pathId} className="flex items-center">
-                <span className="mx-1">/</span>
-                <span>{pathItem.name}</span>
-              </span>
-            ) : null;
-          })}
+              return pathItem ? (
+                <span key={pathId} className="flex items-center">
+                  <span className="mx-1">/</span>
+                  <span>{pathItem.name}</span>
+                </span>
+              ) : null;
+            })}
+          </div>
         </div>
+
+        {role === "Admin" && currentPath.length === 0 && (
+          <Button
+            variant="outline"
+            onClick={handleAddFolder}
+          >
+            <FolderPlus className="h-4 w-4 mr-2" />
+            New Folder
+          </Button>
+        )}
       </div>
 
-      {/* Action buttons - Only show when inside a folder */}
       {currentPath.length > 0 && (
         <div className="flex justify-between mb-6">
           <div className="flex space-x-2">
-            {/* Only show "New Folder" for top-level folders (not subfolders) */}
-            {currentPath.length === 1 && (
-              <Button
-                variant="outline"
-                onClick={() => handleAddSubfolder(currentPath[currentPath.length - 1])}
-              >
-                <FolderPlus className="h-4 w-4 mr-2" />
-                New Folder
-              </Button>
+            {role === "Admin" && (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={() => handleAddSubfolder(currentPath[currentPath.length - 1])}
+                >
+                  <FolderPlus className="h-4 w-4 mr-2" />
+                  New Folder
+                </Button>
+                <Button variant="outline" asChild>
+                  <label>
+                    <Upload className="h-4 w-4 mr-2" />
+                    Upload
+                    <input
+                      type="file"
+                      className="hidden"
+                      onChange={(e) => handleFileUpload(
+                        e,
+                        currentPath.length > 0 ? currentPath[currentPath.length - 1] : null
+                      )}
+                    />
+                  </label>
+                </Button>
+              </>
             )}
-            <Button variant="outline" asChild>
-              <label>
-                <Upload className="h-4 w-4 mr-2" />
-                Upload
-                <input
-                  type="file"
-                  className="hidden"
-                  onChange={(e) => handleFileUpload(
-                    e,
-                    currentPath.length > 0 ? currentPath[currentPath.length - 1] : null
-                  )}
-                />
-              </label>
-            </Button>
           </div>
         </div>
       )}
 
-      {/* Files and folders table */}
       <div className="border rounded-lg overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
@@ -298,15 +343,17 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Type
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
+              {role === "Admin" && (
+                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              )}
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {currentContents.length === 0 ? (
               <tr>
-                <td colSpan="3" className="px-6 py-4 text-center text-gray-500">
+                <td colSpan={role === "Admin" ? 3 : 2} className="px-6 py-4 text-center text-gray-500">
                   No items in this folder
                 </td>
               </tr>
@@ -333,49 +380,48 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
                       {isFolder(item) ? 'Folder' : 'File'}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        {isFolder(item) ? (
-                          <>
-                            {/* Only show "Add Subfolder" for top-level folders */}
-                            {currentPath.length === 0 && (
+                  {role === "Admin" && (
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          {isFolder(item) ? (
+                            <>
                               <DropdownMenuItem onClick={() => handleAddSubfolder(item._id)}>
                                 <FolderPlus className="mr-2 h-4 w-4" />
                                 Add Subfolder
                               </DropdownMenuItem>
-                            )}
-                            <DropdownMenuItem asChild>
-                              <label className="cursor-pointer">
-                                <Upload className="mr-2 h-4 w-4" />
-                                Upload File
-                                <input
-                                  type="file"
-                                  className="hidden"
-                                  onChange={(e) => handleFileUpload(e, item._id)}
-                                />
-                              </label>
+                              <DropdownMenuItem asChild>
+                                <label className="cursor-pointer">
+                                  <Upload className="mr-2 h-4 w-4" />
+                                  Upload File
+                                  <input
+                                    type="file"
+                                    className="hidden"
+                                    onChange={(e) => handleFileUpload(e, item._id)}
+                                  />
+                                </label>
+                              </DropdownMenuItem>
+                            </>
+                          ) : (
+                            <DropdownMenuItem
+                              onClick={() => window.open(
+                                `https://rixdrbokebnvidwyzvzo.supabase.co/storage/v1/object/public/new-project/${item.url}`,
+                                '_blank'
+                              )}
+                            >
+                              <File className="mr-2 h-4 w-4" />
+                              Open File
                             </DropdownMenuItem>
-                          </>
-                        ) : (
-                          <DropdownMenuItem
-                            onClick={() => window.open(
-                              `https://rixdrbokebnvidwyzvzo.supabase.co/storage/v1/object/public/new-project/${item.url}`,
-                              '_blank'
-                            )}
-                          >
-                            <File className="mr-2 h-4 w-4" />
-                            Open File
-                          </DropdownMenuItem>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </td>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </td>
+                  )}
                 </tr>
               ))
             )}
@@ -383,31 +429,31 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
         </table>
       </div>
 
-      {/* Create Subfolder Dialog */}
-      <Dialog open={isSubfolderDialogOpen} onOpenChange={setIsSubfolderDialogOpen}>
+      <Dialog open={isFolderDialogOpen} onOpenChange={setIsFolderDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create New Subfolder</DialogTitle>
+            <DialogTitle>
+              {selectedFolderId ? 'Create New Subfolder' : 'Create New Folder'}
+            </DialogTitle>
           </DialogHeader>
           <div className="py-4">
             <Input
-              placeholder="Subfolder name"
-              value={newSubfolderName}
-              onChange={(e) => setNewSubfolderName(e.target.value)}
+              placeholder={selectedFolderId ? 'Subfolder name' : 'Folder name'}
+              value={newFolderName}
+              onChange={(e) => setNewFolderName(e.target.value)}
             />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsSubfolderDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setIsFolderDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={confirmAddSubfolder}>
+            <Button onClick={selectedFolderId ? confirmAddSubfolder : confirmAddFolder}>
               Create
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Uploading Indicator */}
       {isUploading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg">
