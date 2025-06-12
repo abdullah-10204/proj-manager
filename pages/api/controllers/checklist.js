@@ -1,10 +1,24 @@
 import connectToDatabase from '../config/db';
-import CheckList from '../models/checklist';
+import Project from '../models/project';
 
-const getAllChecklistItems = async (req, res) => {
+const getChecklistItems = async (req, res) => {
     try {
         await connectToDatabase();
-        const items = await CheckList.find().sort({ category: 1, controlItem: 1 });
+        
+        const { projectId } = req.body;
+        
+        let items;
+        if (projectId) {
+            const project = await Project.findById(projectId);
+            if (!project) {
+                return res.status(404).json({ message: 'Project not found' });
+            }
+            items = project.checklist;
+        } else {
+            items = predefinedChecklistItems;
+        }
+        
+        items.sort((a, b) => a.controlItem.localeCompare(b.controlItem));
         
         res.json(items);
     } catch (error) {
@@ -13,104 +27,72 @@ const getAllChecklistItems = async (req, res) => {
     }
 };
 
-const getItemsByCategory = async (req, res) => {
+const updateChecklistAnswer = async (req, res) => {
     try {
         await connectToDatabase();
-        const { category } = req.body;
-        const items = await CheckList.find({ category }).sort({ controlItem: 1 });
+        
+        const { projectId, itemId, answer } = req.body;
 
-        if (!items || items.length === 0) {
-            return res.status(404).json({ message: 'No items found for this category' });
+        if (!projectId || !itemId || !answer) {
+            return res.status(400).json({ 
+                message: 'Project ID, item ID, and answer are required' 
+            });
         }
 
-        res.json(items);
-    } catch (error) {
-        console.error('Error fetching items by category:', error);
-        res.status(500).json({ message: 'Server error while fetching items by category' });
-    }
-};
-
-const updateAnswer = async (req, res) => {
-    try {
-        await connectToDatabase();
-
-        const { answer, id } = req.body;
-
-        if (!answer) {
-            return res.status(400).json({ message: 'Answer is required' });
-        }
-
-        const updatedItem = await CheckList.findByIdAndUpdate(
-            id,
-            { answer },
-            { new: true, runValidators: true }
+        const project = await Project.findOneAndUpdate(
+            { 
+                _id: projectId, 
+                'checklist._id': itemId 
+            },
+            { 
+                $set: { 
+                    'checklist.$.answer': answer,
+                    'checklist.$.updatedAt': new Date() 
+                } 
+            },
+            { new: true }
         );
 
-        if (!updatedItem) {
-            return res.status(404).json({ message: 'Checklist item not found' });
+        if (!project) {
+            return res.status(404).json({ message: 'Project or checklist item not found' });
         }
 
+        const updatedItem = project.checklist.find(item => item._id.equals(itemId));
+        
         res.json(updatedItem);
     } catch (error) {
-        console.error('Error updating answer:', error);
-        res.status(500).json({ message: 'Server error while updating answer' });
+        console.error('Error updating checklist answer:', error);
+        res.status(500).json({ message: 'Server error while updating checklist answer' });
     }
 };
 
-const bulkUpdateAnswers = async (req, res) => {
+const getAllProjectsChecklists = async (req, res) => {
     try {
-        await connectToDatabase();
+                await connectToDatabase();
 
-        const { updates } = req.body;
-
-        if (!updates || !Array.isArray(updates)) {
-            return res.status(400).json({ message: 'Invalid updates format' });
-        }
-
-        const bulkOps = updates.map(update => ({
-            updateOne: {
-                filter: { _id: update.id },
-                update: { $set: { answer: update.answer } }
-            }
-        }));
-
-        const result = await CheckList.bulkWrite(bulkOps);
-
-        if (result.modifiedCount === 0) {
-            return res.status(404).json({ message: 'No items were updated' });
-        }
-
-        res.json({
-            message: 'Bulk update successful',
-            modifiedCount: result.modifiedCount
+        const projects = await Project.find()
+            .select('projectName checklist');
+        
+        res.status(200).json({
+            success: true,
+            count: projects.length,
+            data: projects.map(project => ({
+                projectName: project.projectName,
+                projectId: project._id,
+                checklist: project.checklist
+            }))
         });
+        
     } catch (error) {
-        console.error('Error in bulk update:', error);
-        res.status(500).json({ message: 'Server error during bulk update' });
+        res.status(500).json({ 
+            success: false, 
+            message: 'Server error', 
+            error: error.message 
+        });
     }
 };
-
-const getChecklistItemById = async (req, res) => {
-    try {
-        await connectToDatabase();
-
-        const item = await CheckList.findById(req.params.id);
-
-        if (!item) {
-            return res.status(404).json({ message: 'Checklist item not found' });
-        }
-
-        res.json(item);
-    } catch (error) {
-        console.error('Error fetching checklist item:', error);
-        res.status(500).json({ message: 'Server error while fetching checklist item' });
-    }
-};
-
 export {
-    getAllChecklistItems,
-    getItemsByCategory,
-    updateAnswer,
-    bulkUpdateAnswers,
-    getChecklistItemById
+    getChecklistItems,
+    updateChecklistAnswer,
+    getAllProjectsChecklists
 };

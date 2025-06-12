@@ -13,46 +13,116 @@ import {
   Clock,
   TrendingUp,
   Layers,
-  Search
+  Search,
+  FolderOpen
 } from "lucide-react";
 import Link from "next/link";
 import axios from "axios";
 
 
-const ProgressChart = () => {
-  const data = [
-    { month: "Jan", value: 65 },
-    { month: "Feb", value: 59 },
-    { month: "Mar", value: 80 },
-    { month: "Apr", value: 81 },
-    { month: "May", value: 56 },
-    { month: "Jun", value: 55 },
-    { month: "Jul", value: 40 },
-  ];
+const ProgressChart = ({ projectsDetail }) => {
+  // Calculate completion percentage for each project
+  const projectData = projectsDetail.map(project => {
+    if (!project.checklist || project.checklist.length === 0) {
+      return {
+        id: project.id || project._id,
+        name: project.projectName || 'Unnamed Project',
+        value: 0,
+        totalItems: 0,
+        completedItems: 0
+      };
+    }
 
-  const maxValue = Math.max(...data.map((item) => item.value));
+    const completedItems = project.checklist.filter(item => item.answer && item.answer.trim() !== '').length;
+    const percentage = Math.round((completedItems / project.checklist.length) * 100);
+
+    return {
+      id: project.id || project._id,
+      name: project.projectName || 'Unnamed Project',
+      value: percentage,
+      totalItems: project.checklist.length,
+      completedItems
+    };
+  });
+
+  // Sort projects by completion percentage (highest first)
+  projectData.sort((a, b) => b.value - a.value);
 
   return (
-    <div className="bg-white rounded-xl p-6 border border-gray-200">
+    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-3">
           <TrendingUp className="text-blue-500" size={20} />
           <h2 className="text-xl font-semibold text-gray-900">
-            Project Activity
+            Project Completion Progress
           </h2>
         </div>
-        <div className="text-sm text-blue-600 font-medium">Last 7 months</div>
+        <div className="text-sm text-blue-600 font-medium">
+          {projectsDetail.length} {projectsDetail.length === 1 ? 'Project' : 'Projects'}
+        </div>
       </div>
-      <div className="flex items-end h-40 gap-2">
-        {data.map((item, index) => (
-          <div key={index} className="flex-1 flex flex-col items-center">
-            <div
-              className="w-full bg-gradient-to-t from-blue-500 to-blue-300 rounded-t-lg transition-all duration-300 hover:from-blue-600 hover:to-blue-400"
-              style={{ height: `${(item.value / maxValue) * 100}%` }}
-            />
-            <div className="mt-2 text-xs text-gray-500">{item.month}</div>
-          </div>
-        ))}
+
+      {projectData.length > 0 ? (
+        <div className="space-y-4">
+          {projectData.map((item) => {
+            const barColor = item.value === 100
+              ? 'bg-gradient-to-r from-green-500 to-green-400'
+              : item.value >= 75
+                ? 'bg-gradient-to-r from-blue-500 to-blue-400'
+                : item.value >= 50
+                  ? 'bg-gradient-to-r from-amber-500 to-amber-400'
+                  : 'bg-gradient-to-r from-red-500 to-red-400';
+
+            return (
+              <div key={item.id} className="group">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="text-sm font-medium text-gray-700 truncate max-w-[180px]">
+                    {item.name}
+                  </div>
+                  <div className="text-xs font-medium text-gray-500">
+                    {item.completedItems}/{item.totalItems} items
+                  </div>
+                </div>
+
+                <div className="w-full h-4 bg-gray-100 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full ${barColor} transition-all duration-500 ease-out`}
+                    style={{ width: `${item.value}%` }}
+                  >
+                    <div className="absolute right-0 top-0 bottom-0 flex items-center pr-2 text-xs font-medium text-white">
+                      {item.value}%
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="h-64 flex flex-col items-center justify-center text-gray-500">
+          <FolderOpen className="text-gray-300 mb-2" size={24} />
+          No project data available
+        </div>
+      )}
+
+      {/* Legend */}
+      <div className="flex flex-wrap justify-center mt-6 gap-3 text-xs">
+        <div className="flex items-center gap-1.5 px-2 py-1 bg-gray-50 rounded-full">
+          <div className="w-3 h-3 rounded-full bg-gradient-to-r from-green-500 to-green-400"></div>
+          <span>100% Complete</span>
+        </div>
+        <div className="flex items-center gap-1.5 px-2 py-1 bg-gray-50 rounded-full">
+          <div className="w-3 h-3 rounded-full bg-gradient-to-r from-blue-500 to-blue-400"></div>
+          <span>75-99%</span>
+        </div>
+        <div className="flex items-center gap-1.5 px-2 py-1 bg-gray-50 rounded-full">
+          <div className="w-3 h-3 rounded-full bg-gradient-to-r from-amber-500 to-amber-400"></div>
+          <span>50-74%</span>
+        </div>
+        <div className="flex items-center gap-1.5 px-2 py-1 bg-gray-50 rounded-full">
+          <div className="w-3 h-3 rounded-full bg-gradient-to-r from-red-500 to-red-400"></div>
+          <span>Below 50%</span>
+        </div>
       </div>
     </div>
   );
@@ -67,28 +137,49 @@ export default function Dashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const projectsPerPage = 5;
-  const [lLoading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [projectsDetail, setProjectsDetail] = useState([]);
+
+  const fetchAllChecklistItems = async () => {
+    try {
+      const response = await axios.post('/api/routes/checklist?action=getAllProjectsChecklists');
+      const projectsWithChecklists = Array.isArray(response.data.data) ? response.data.data : [];
+
+      const normalizedProjects = projectsWithChecklists.map(project => ({
+        ...project,
+        id: project.projectId || project._id,
+        projectName: project.projectName || `Project ${project._id}`,
+        checklist: project.checklist || []
+      }));
+
+      setProjectsDetail(normalizedProjects);
+      setLoading(false);
+    } catch (err) {
+      console.error("Error fetching checklist items:", err);
+      setError(err.message);
+      setLoading(false);
+    }
+  };
 
   const handleDeleteProject = async (projectId) => {
-  try {
-    const response = await axios.post('/api/routes/project?action=deleteProject', {
-      projectId: projectId
-    });
+    try {
+      const response = await axios.post('/api/routes/project?action=deleteProject', {
+        projectId: projectId
+      });
 
-    // Remove the project from local state
-    setProjects(projects.filter(project => project._id !== projectId));
-    setProjectToDelete(null); // Close the confirmation dialog
-    
-    // Optional: Show success message
-    alert('Project deleted successfully');
-    
-    // Refresh projects if needed
-    fetchProjects();
-  } catch (error) {
-    console.error('Error deleting project:', error);
-    alert('Failed to delete project');
-  }
-};
+      setProjects(projects.filter(project => project._id !== projectId));
+      setProjectToDelete(null); // Close the confirmation dialog
+
+      // Optional: Show success message
+      alert('Project deleted successfully');
+
+      // Refresh projects if needed
+      fetchProjects();
+    } catch (error) {
+      console.error('Error deleting project:', error);
+      alert('Failed to delete project');
+    }
+  };
 
   const handleCreateProject = (name) => {
     const newProject = {
@@ -116,21 +207,21 @@ export default function Dashboard() {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-      const fetchProjects = async () => {
-      try {
-        const response = await axios.get('/api/routes/project?action=getProjects');
-        console.log("response", response.data);
+  const fetchProjects = async () => {
+    try {
+      const response = await axios.get('/api/routes/project?action=getProjects');
+      console.log("response", response.data);
 
-        setProjects(response.data);
-        setLoading(false);
-      } catch (err) {
-        setLoading(false);
-      }
-    };
+      setProjects(response.data);
+      setLoading(false);
+    } catch (err) {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
 
-
+    fetchAllChecklistItems();
     fetchProjects();
   }, []);
 
@@ -151,7 +242,7 @@ export default function Dashboard() {
           </button>
         </div>
 
-        <ProgressChart />
+        <ProgressChart projectsDetail={projectsDetail} />
 
         {/* Projects Table Section */}
         <div className="mt-12">
@@ -201,7 +292,7 @@ export default function Dashboard() {
                     currentProjects.map((project) => (
                       <tr key={project._id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <Link href={`/${project._id}/${project.projectName}`} className="flex items-center space-x-3 group">
+                          <Link href={`project/?projectid=${project._id}&projectDetails=${encodeURIComponent(project.projectName)}`} className="flex items-center space-x-3 group">
                             <div className="bg-gray-100 p-2 rounded-lg">
                               <Folder className="text-blue-500" size={18} />
                             </div>

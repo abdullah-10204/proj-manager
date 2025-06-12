@@ -1,17 +1,24 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useSearchParams } from 'next/navigation';
 
 const ChecklistPage = () => {
     const [checklistItems, setChecklistItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [expandedId, setExpandedId] = useState(null);
+    const searchParam = useSearchParams();
+    const projectId = searchParam.get("projectId");
 
     useEffect(() => {
         const fetchAllChecklistItems = async () => {
             try {
-                const response = await axios.post('/api/routes/checklist?action=getAllChecklistItems');
+                const response = await axios.post('/api/routes/checklist?action=getChecklistItems',{
+                    projectId
+                });
+                console.log("response",response);
+                
                 setChecklistItems(response.data);
                 setLoading(false);
             } catch (err) {
