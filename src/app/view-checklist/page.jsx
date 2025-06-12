@@ -1,10 +1,10 @@
 "use client"
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import axios from 'axios';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 
-const ChecklistPage = () => {
+const ChecklistContent = () => {
     const [checklistItems, setChecklistItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -31,7 +31,7 @@ const ChecklistPage = () => {
         };
 
         fetchAllChecklistItems();
-    }, []);
+    }, [projectId]); // Added projectId as dependency
 
     const toggleExpand = (id) => {
         setExpandedId(expandedId === id ? null : id);
@@ -243,6 +243,16 @@ const ChecklistPage = () => {
                 ))}
             </div>
         </div>
+    );
+};
+
+const ChecklistPage = () => {
+    return (
+        <Suspense fallback={<div className="flex justify-center items-center min-h-screen">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        </div>}>
+            <ChecklistContent />
+        </Suspense>
     );
 };
 

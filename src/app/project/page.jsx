@@ -1,11 +1,12 @@
 'use client'
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import Folders from "@/components/Folders";
 import AskQuestion from "@/components/AskQuestion";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-export default function Page() {
+// Move the main content to a separate component
+const ProjectContent = () => {
     const searchParam = useSearchParams();
     const projectId = searchParam.get("projectid");
     const projectName = searchParam.get("projectDetails");
@@ -60,5 +61,14 @@ export default function Page() {
                 <Folders folders={folders} projectId={projectId} />
             </div>
         </div>
+    );
+};
+
+// Main page component with Suspense boundary
+export default function Page() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <ProjectContent />
+        </Suspense>
     );
 }
