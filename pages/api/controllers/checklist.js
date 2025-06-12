@@ -1,16 +1,6 @@
 import connectToDatabase from '../config/db';
 import CheckList from '../models/checklist';
 
-const initializeChecklist = async (req, res) => {
-  try {
-    await CheckList.initializeChecklist();
-    res.status(201).json({ message: 'Checklist initialized successfully' });
-  } catch (error) {
-    console.error('Error initializing checklist:', error);
-    res.status(500).json({ message: 'Server error while initializing checklist' });
-  }
-};
-
 const getAllChecklistItems = async (req, res) => {
     try {
         await connectToDatabase();
