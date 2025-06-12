@@ -3,6 +3,7 @@ import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Mail, Lock, Eye, EyeOff, AlertCircle } from "lucide-react";
+import Cookies from 'js-cookie';
 
 function SigninUser() {
   const router = useRouter();
@@ -18,7 +19,6 @@ function SigninUser() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    // Clear error when user types
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -48,16 +48,31 @@ function SigninUser() {
 
     setLoading(true);
     try {
-      // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1500));
-      // Handle successful login here
-      router.push("/dashboard");
+
+      const { email, password } = formData;
+
+      const expires = new Date();
+      expires.setDate(expires.getDate() + 7);
+
+      if (email === "adminuser123@gmail.com" && password === "admin123") {
+        Cookies.set('Role', 'Admin', { expires, secure: true, sameSite: 'strict' });
+        Cookies.set('isAuthenticated', 'true', { expires, secure: true, sameSite: 'strict' });
+        router.push("/admin");
+      } else if (email === "user123@gmail.com" && password === "user123") {
+        Cookies.set('Role', 'User', { expires, secure: true, sameSite: 'strict' });
+        Cookies.set('isAuthenticated', 'true', { expires, secure: true, sameSite: 'strict' });
+        router.push("/dashboard");
+      } else {
+        setErrors({ submit: "Invalid email or password" });
+      }
     } catch (error) {
       setErrors({ submit: error.message });
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="flex h-auto min-h-screen w-full">
@@ -102,18 +117,16 @@ function SigninUser() {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="Enter your business email"
-                  className={`w-full border ${
-                    submitAttempted && errors.email
-                      ? "border-red-500"
-                      : "border-[var(--border-color)]"
-                  } rounded-[58px] p-4 pl-12 pr-12 focus:outline-none focus:border-[var(--primary-color)] placeholder:text-gray-400 placeholder:text-[16px] placeholder:leading-6`}
+                  className={`w-full border ${submitAttempted && errors.email
+                    ? "border-red-500"
+                    : "border-[var(--border-color)]"
+                    } rounded-[58px] p-4 pl-12 pr-12 focus:outline-none focus:border-[var(--primary-color)] placeholder:text-gray-400 placeholder:text-[16px] placeholder:leading-6`}
                 />
                 <Mail
-                  className={`absolute left-4 top-1/2 transform -translate-y-1/2 ${
-                    submitAttempted && errors.email
-                      ? "text-red-500"
-                      : "text-gray-600"
-                  }`}
+                  className={`absolute left-4 top-1/2 transform -translate-y-1/2 ${submitAttempted && errors.email
+                    ? "text-red-500"
+                    : "text-gray-600"
+                    }`}
                   size={20}
                 />
                 {submitAttempted && errors.email && (
@@ -143,18 +156,16 @@ function SigninUser() {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Enter your password"
-                  className={`w-full border ${
-                    submitAttempted && errors.password
-                      ? "border-red-500"
-                      : "border-[var(--border-color)]"
-                  } rounded-[58px] p-4 pl-12 pr-12 focus:outline-none focus:border-[var(--primary-color)] placeholder:text-gray-400 placeholder:text-[16px] placeholder:leading-6`}
+                  className={`w-full border ${submitAttempted && errors.password
+                    ? "border-red-500"
+                    : "border-[var(--border-color)]"
+                    } rounded-[58px] p-4 pl-12 pr-12 focus:outline-none focus:border-[var(--primary-color)] placeholder:text-gray-400 placeholder:text-[16px] placeholder:leading-6`}
                 />
                 <Lock
-                  className={`absolute left-4 top-1/2 transform -translate-y-1/2 ${
-                    submitAttempted && errors.password
-                      ? "text-red-500"
-                      : "text-gray-600"
-                  }`}
+                  className={`absolute left-4 top-1/2 transform -translate-y-1/2 ${submitAttempted && errors.password
+                    ? "text-red-500"
+                    : "text-gray-600"
+                    }`}
                   size={20}
                 />
                 <button
@@ -173,11 +184,10 @@ function SigninUser() {
             <button
               type="submit"
               disabled={loading}
-              className={`mt-4 w-full py-4 px-6 rounded-[58px] text-white font-semibold cursor-pointer flex items-center justify-center gap-2 ${
-                loading
-                  ? "bg-blue-400 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700"
-              }`}
+              className={`mt-4 w-full py-4 px-6 rounded-[58px] text-white font-semibold cursor-pointer flex items-center justify-center gap-2 ${loading
+                ? "bg-blue-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
+                }`}
             >
               {loading ? (
                 <>
