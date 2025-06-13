@@ -93,18 +93,18 @@ const ChecklistContent = () => {
 
     if (loading) return (
         <div className="flex justify-center items-center min-h-screen bg-[#003366]">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#00B5E2]"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0000C0]"></div>
         </div>
     );
 
     if (error) return (
         <div className="text-center py-8 text-red-500 bg-[#003366] min-h-screen flex items-center justify-center">
-            <div className="bg-white p-6 rounded-lg border border-[#00B5E2] shadow-lg max-w-md">
+            <div className="bg-white p-6 rounded-lg border border-[#003366] shadow-lg max-w-md">
                 <p className="text-xl font-medium text-[#003366]">Error loading checklist</p>
-                <p className="mt-2 text-[#336699]">{error}</p>
+                <p className="mt-2 text-[#003366]">{error}</p>
                 <button 
                     onClick={() => window.location.reload()}
-                    className="mt-4 px-4 py-2 bg-gradient-to-r from-[#00B5E2] to-[#00B5E2] hover:from-[#0095C2] hover:to-[#0095C2] text-white rounded-md transition-colors"
+                    className="mt-4 px-4 py-2 bg-gradient-to-r from-[#0000C0] to-[#0000C0] hover:from-[#000080] hover:to-[#000080] text-white rounded-md transition-colors"
                 >
                     Try Again
                 </button>
@@ -113,12 +113,12 @@ const ChecklistContent = () => {
     );
 
     return (
-        <div className="min-h-screen bg-[#E6F0F8] py-8 px-4 sm:px-6">
+        <div className="min-h-screen bg-[#003366] py-8 px-4 sm:px-6">
             <div className="max-w-5xl mx-auto">
                 <div className="mb-6">
                     <button 
                         onClick={() => router.back()}
-                        className="flex items-center text-[#00B5E2] hover:text-[#003366] transition-colors"
+                        className="flex items-center text-[#0000C0] hover:text-white transition-colors"
                     >
                         <ChevronLeft className="h-5 w-5 mr-1" />
                         Back to Dashboard
@@ -126,19 +126,19 @@ const ChecklistContent = () => {
                 </div>
 
                 <div className="mb-8 text-center">
-                    <h1 className="text-3xl font-bold text-[#003366] mb-2">Compliance Checklist</h1>
-                    <p className="text-[#336699]">Review and manage compliance requirements for your project</p>
+                    <h1 className="text-3xl font-bold text-white mb-2">Compliance Checklist</h1>
+                    <p className="text-[#A0C4E0]">Review and manage compliance requirements for your project</p>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8 border-2 border-[#00B5E2]">
+                <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8 border-2 border-[#003366]">
                     <div className="p-5 bg-[#003366]">
                         <div className="flex items-center">
-                            <div className="p-2 rounded-full bg-[#00B5E2] bg-opacity-20 mr-3">
-                                {/* <Lightning className="h-6 w-6 text-[#00B5E2]" /> */}
+                            <div className="p-2 rounded-full bg-[#0000C0] bg-opacity-20 mr-3">
+                                {/* <Lightning className="h-6 w-6 text-[#0000C0]" /> */}
                             </div>
                             <div>
                                 <h2 className="text-lg font-semibold text-white">AI Compliance Assistant</h2>
-                                <p className="text-sm text-[#E6F0F8]">Ask questions about compliance requirements</p>
+                                <p className="text-sm text-[#A0C4E0]">Ask questions about compliance requirements</p>
                             </div>
                         </div>
                     </div>
@@ -151,13 +151,13 @@ const ChecklistContent = () => {
                                     value={aiQuestion}
                                     onChange={(e) => setAiQuestion(e.target.value)}
                                     placeholder="Ask a question about compliance..."
-                                    className="flex-1 p-3 border border-[#E6F0F8] rounded-md focus:ring-[#00B5E2] focus:border-[#00B5E2] text-[#003366]"
+                                    className="flex-1 p-3 border border-[#E6F0F8] rounded-md focus:ring-[#0000C0] focus:border-[#0000C0] text-[#003366]"
                                     disabled={isAiLoading}
                                 />
                                 <button
                                     type="submit"
                                     disabled={isAiLoading || !aiQuestion.trim()}
-                                    className="px-4 py-3 bg-gradient-to-r from-[#00B5E2] to-[#00B5E2] hover:from-[#0095C2] hover:to-[#0095C2] text-white rounded-md transition-colors disabled:bg-[#336699] disabled:cursor-not-allowed flex items-center"
+                                    className="px-4 py-3 bg-gradient-to-r from-[#0000C0] to-[#0000C0] hover:from-[#000080] hover:to-[#000080] text-white rounded-md transition-colors disabled:bg-[#003366] disabled:cursor-not-allowed flex items-center"
                                 >
                                     {isAiLoading ? (
                                         <>
@@ -180,9 +180,9 @@ const ChecklistContent = () => {
                         )}
 
                         {aiAnswer && (
-                            <div className="bg-[#E6F0F8] border border-[#00B5E2] rounded-md p-4">
+                            <div className="bg-[#E6F0F8] border border-[#003366] rounded-md p-4">
                                 <div className="flex items-start">
-                                    <MessageSquare className="h-5 w-5 text-[#00B5E2] mt-1 mr-3 flex-shrink-0" />
+                                    <MessageSquare className="h-5 w-5 text-[#0000C0] mt-1 mr-3 flex-shrink-0" />
                                     <div className="prose prose-sm max-w-none text-[#003366]">
                                         <p className="whitespace-pre-wrap">{aiAnswer}</p>
                                     </div>
@@ -192,15 +192,15 @@ const ChecklistContent = () => {
                     </div>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8 border-2 border-[#00B5E2]">
+                <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8 border-2 border-[#003366]">
                     <div className="p-5 bg-[#003366]">
                         <div className="flex items-center">
-                            <div className="p-2 rounded-full bg-[#00B5E2] bg-opacity-20 mr-3">
-                                <Check className="h-6 w-6 text-[#00B5E2]" />
+                            <div className="p-2 rounded-full bg-[#0000C0] bg-opacity-20 mr-3">
+                                <Check className="h-6 w-6 text-[#0000C0]" />
                             </div>
                             <div>
                                 <h2 className="text-lg font-semibold text-white">Checklist Summary</h2>
-                                <p className="text-sm text-[#E6F0F8]">
+                                <p className="text-sm text-[#A0C4E0]">
                                     {checklistItems.filter(item => item.answer).length} of {checklistItems.length} items completed
                                 </p>
                             </div>
@@ -209,7 +209,7 @@ const ChecklistContent = () => {
                     <div className="p-4 bg-[#E6F0F8]">
                         <div className="w-full bg-[#D0E0ED] rounded-full h-2.5">
                             <div 
-                                className="bg-[#00B5E2] h-2.5 rounded-full" 
+                                className="bg-[#0000C0] h-2.5 rounded-full" 
                                 style={{ width: `${(checklistItems.filter(item => item.answer).length / checklistItems.length) * 100}%` }}
                             ></div>
                         </div>
@@ -218,53 +218,53 @@ const ChecklistContent = () => {
 
                 <div className="space-y-4">
                     {checklistItems.map((item) => (
-                        <div key={item._id} className="bg-white rounded-lg shadow-sm overflow-hidden border-2 border-[#E6F0F8] hover:border-[#00B5E2] transition-colors">
+                        <div key={item._id} className="bg-white rounded-lg shadow-sm overflow-hidden border-2 border-[#003366] hover:border-[#0000C0] transition-colors">
                             <div className="p-5">
                                 <div 
                                     className="flex justify-between items-start cursor-pointer group"
                                     onClick={() => toggleExpand(item._id)}
                                 >
                                     <div className="flex items-start">
-                                        <div className={`flex-shrink-0 mt-1 mr-3 h-5 w-5 rounded-full border flex items-center justify-center ${item.answer ? 'border-green-200 bg-green-100 text-green-600' : 'border-[#E6F0F8] bg-[#F5F9FC] text-[#336699]'}`}>
+                                        <div className={`flex-shrink-0 mt-1 mr-3 h-5 w-5 rounded-full border flex items-center justify-center ${item.answer ? 'border-green-200 bg-green-100 text-green-600' : 'border-[#E6F0F8] bg-[#F5F9FC] text-[#003366]'}`}>
                                             {item.answer && <Check className="h-3 w-3" />}
                                         </div>
                                         <div>
-                                            <h3 className="text-lg font-semibold text-[#003366] group-hover:text-[#00B5E2] transition-colors">
+                                            <h3 className="text-lg font-semibold text-[#003366] group-hover:text-[#0000C0] transition-colors">
                                                 {item.controlItem}
                                             </h3>
                                         </div>
                                     </div>
                                     <ChevronDown
-                                        className={`h-5 w-5 text-[#336699] group-hover:text-[#00B5E2] transform transition-transform ${expandedId === item._id ? 'rotate-180' : ''}`}
+                                        className={`h-5 w-5 text-[#003366] group-hover:text-[#0000C0] transform transition-transform ${expandedId === item._id ? 'rotate-180' : ''}`}
                                     />
                                 </div>
 
                                 {expandedId === item._id && (
                                     <div className="mt-4 space-y-4 pl-8">
-                                        <div className="bg-[#E6F0F8] p-4 rounded-md border border-[#00B5E2]">
+                                        <div className="bg-[#E6F0F8] p-4 rounded-md border border-[#003366]">
                                             <h4 className="font-medium text-[#003366] mb-2 flex items-center">
-                                                <Info className="h-4 w-4 mr-2 text-[#00B5E2]" />
+                                                <Info className="h-4 w-4 mr-2 text-[#0000C0]" />
                                                 Control Objective
                                             </h4>
-                                            <p className="text-[#336699]">{item.controlObjective}</p>
+                                            <p className="text-[#003366]">{item.controlObjective}</p>
                                         </div>
 
                                         {item.description && (
-                                            <div className="bg-[#F5F9FC] p-4 rounded-md border border-[#E6F0F8]">
+                                            <div className="bg-[#F5F9FC] p-4 rounded-md border border-[#003366]">
                                                 <h4 className="font-medium text-[#003366] mb-2">Description</h4>
-                                                <p className="text-[#336699]">{item.description}</p>
+                                                <p className="text-[#003366]">{item.description}</p>
                                             </div>
                                         )}
 
-                                        <div className="border-t border-[#E6F0F8] pt-4">
+                                        <div className="border-t border-[#003366] pt-4">
                                             <h4 className="font-medium text-[#003366] mb-2 flex items-center">
-                                                <MessageSquare className="h-4 w-4 mr-2 text-[#00B5E2]" />
+                                                <MessageSquare className="h-4 w-4 mr-2 text-[#0000C0]" />
                                                 Response
                                             </h4>
                                             {editingId === item._id ? (
                                                 <div className="space-y-3">
                                                     <textarea
-                                                        className="w-full p-3 border border-[#E6F0F8] rounded-md focus:ring-[#00B5E2] focus:border-[#00B5E2] text-[#003366]"
+                                                        className="w-full p-3 border border-[#003366] rounded-md focus:ring-[#0000C0] focus:border-[#0000C0] text-[#003366]"
                                                         value={editAnswer}
                                                         onChange={(e) => setEditAnswer(e.target.value)}
                                                         rows={3}
@@ -273,22 +273,22 @@ const ChecklistContent = () => {
                                                     <div className="flex justify-end space-x-2">
                                                         <button
                                                             onClick={handleCancelEdit}
-                                                            className="px-4 py-2 border border-[#E6F0F8] rounded-md text-[#003366] hover:bg-[#F5F9FC] transition-colors"
+                                                            className="px-4 py-2 border border-[#003366] rounded-md text-[#003366] hover:bg-[#F5F9FC] transition-colors"
                                                         >
                                                             Cancel
                                                         </button>
                                                         <button
                                                             onClick={() => handleSaveAnswer(item._id)}
-                                                            className="px-4 py-2 bg-gradient-to-r from-[#00B5E2] to-[#00B5E2] hover:from-[#0095C2] hover:to-[#0095C2] text-white rounded-md transition-colors"
+                                                            className="px-4 py-2 bg-gradient-to-r from-[#0000C0] to-[#0000C0] hover:from-[#000080] hover:to-[#000080] text-white rounded-md transition-colors"
                                                         >
                                                             Save Response
                                                         </button>
                                                     </div>
                                                 </div>
                                             ) : (
-                                                <div className={`p-3 rounded-md ${item.answer ? 'bg-green-50 border border-green-100' : 'bg-[#F5F9FC] border border-[#E6F0F8]'}`}>
+                                                <div className={`p-3 rounded-md ${item.answer ? 'bg-green-50 border border-green-100' : 'bg-[#F5F9FC] border border-[#003366]'}`}>
                                                     <div className="flex justify-between items-start">
-                                                        <p className={item.answer ? "text-[#003366]" : "text-[#336699] italic"}>
+                                                        <p className={item.answer ? "text-[#003366]" : "text-[#003366] italic"}>
                                                             {item.answer || "No response provided yet"}
                                                         </p>
                                                         {role === "Admin" && (
@@ -297,7 +297,7 @@ const ChecklistContent = () => {
                                                                     e.stopPropagation();
                                                                     handleEditClick(item);
                                                                 }}
-                                                                className="ml-2 text-[#00B5E2] hover:text-[#003366] flex items-center text-sm"
+                                                                className="ml-2 text-[#0000C0] hover:text-[#003366] flex items-center text-sm"
                                                             >
                                                                 <Edit className="h-4 w-4 mr-1" />
                                                                 Edit
@@ -305,7 +305,7 @@ const ChecklistContent = () => {
                                                         )}
                                                     </div>
                                                     {item.answer && (
-                                                        <div className="mt-2 text-xs text-[#336699]">
+                                                        <div className="mt-2 text-xs text-[#003366]">
                                                             Last updated: {new Date(item.updatedAt || item.createdAt).toLocaleString()}
                                                         </div>
                                                     )}
@@ -327,7 +327,7 @@ const ChecklistPage = () => {
     return (
         <Suspense fallback={
             <div className="flex justify-center items-center min-h-screen bg-[#003366]">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#00B5E2]"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0000C0]"></div>
             </div>
         }>
             <ChecklistContent />

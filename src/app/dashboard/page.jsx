@@ -22,6 +22,7 @@ import Link from "next/link";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const ProgressChart = ({ projectsDetail }) => {
   const statusOrder = {
@@ -49,18 +50,15 @@ const ProgressChart = ({ projectsDetail }) => {
   projectData.sort((a, b) => b.statusValue - a.statusValue);
 
   return (
-    <div
-      className="bg-white rounded-xl p-6 border shadow-sm"
-      style={{ borderColor: "#00B5E2", borderWidth: "2px" }}
-    >
+    <div className="bg-white rounded-xl p-6 border shadow-sm border-[#003366]">
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-3">
-          <TrendingUp className="text-[#00B5E2]" size={20} />
+          <TrendingUp className="text-[#0000C0]" size={20} />
           <h2 className="text-xl font-semibold text-[#003366]">
             Project Status Progress
           </h2>
         </div>
-        <div className="text-sm text-[#00B5E2] font-medium">
+        <div className="text-sm text-[#0000C0] font-medium">
           {projectsDetail.length}{" "}
           {projectsDetail.length === 1 ? "Project" : "Projects"}
         </div>
@@ -73,7 +71,7 @@ const ProgressChart = ({ projectsDetail }) => {
               item.status === "Audit Report Submitted"
                 ? "bg-gradient-to-r from-green-500 to-green-400"
                 : item.status === "Internal Review of Audit Report"
-                ? "bg-gradient-to-r from-[#00B5E2] to-[#00B5E2]"
+                ? "bg-gradient-to-r from-[#0000C0] to-[#0000C0]"
                 : item.status === "Audit Completed"
                 ? "bg-gradient-to-r from-amber-500 to-amber-400"
                 : item.status === "Data Received"
@@ -86,7 +84,7 @@ const ProgressChart = ({ projectsDetail }) => {
                   <div className="text-sm font-medium text-[#003366] truncate max-w-[180px]">
                     {item.name}
                   </div>
-                  <div className="text-xs font-medium text-[#336699]">
+                  <div className="text-xs font-medium text-[#003366]">
                     {item.status}
                   </div>
                 </div>
@@ -107,7 +105,7 @@ const ProgressChart = ({ projectsDetail }) => {
           })}
         </div>
       ) : (
-        <div className="h-40 flex flex-col items-center justify-center text-[#336699]">
+        <div className="h-40 flex flex-col items-center justify-center text-[#003366]">
           <FolderOpen className="text-[#E6F0F8] mb-2" size={24} />
           <p>No project data available</p>
         </div>
@@ -127,7 +125,7 @@ const ProgressChart = ({ projectsDetail }) => {
           <span className="text-[#003366]">Audit Completed</span>
         </div>
         <div className="flex items-center gap-1.5 px-2 py-1 bg-[#E6F0F8] rounded-full">
-          <div className="w-3 h-3 rounded-full bg-gradient-to-r from-[#00B5E2] to-[#00B5E2]"></div>
+          <div className="w-3 h-3 rounded-full bg-gradient-to-r from-[#0000C0] to-[#0000C0]"></div>
           <span className="text-[#003366]">Internal Review</span>
         </div>
         <div className="flex items-center gap-1.5 px-2 py-1 bg-[#E6F0F8] rounded-full">
@@ -287,28 +285,20 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 bg-[#E6F0F8]">
+    <div className="min-h-screen p-4 sm:p-6 bg-[#003366]">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 rounded-xl p-4 bg-[#003366]">
           <div className="flex items-center gap-4">
             <div className="flex items-center">
-              <span className="text-2xl sm:text-3xl font-bold text-white">
-                Tender
-              </span>
-              <span className="text-2xl sm:text-3xl font-bold text-white">
-                Evidence
-              </span>
-              <span className="text-2xl sm:text-3xl font-bold text-[#00B5E2]">
-                360
-              </span>
+             <Image src="/image1.png" alt="Description" width={250} height={250} />
             </div>
           </div>
 
           <div className="flex items-center gap-3 w-full sm:w-auto">
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-white hover:bg-[#336699] rounded-lg transition"
+              className="flex items-center gap-2 px-3 py-2 text-sm text-white hover:bg-[#0000C0] rounded-lg transition"
             >
               <LogOut size={16} />
               <span className="hidden sm:inline">Logout</span>
@@ -317,7 +307,7 @@ export default function Dashboard() {
             {role === "Admin" && (
               <button
                 onClick={() => setShowCreatePopup(true)}
-                className="px-4 py-2 bg-gradient-to-r from-[#00B5E2] to-[#00B5E2] text-white hover:from-[#0095C2] hover:to-[#0095C2] rounded-lg transition flex items-center gap-2 shadow-md hover:shadow-lg flex-1 sm:flex-none justify-center"
+                className="px-4 py-2 bg-gradient-to-r from-[#0000C0] to-[#0000C0] text-white hover:from-[#000080] hover:to-[#000080] rounded-lg transition flex items-center gap-2 shadow-md hover:shadow-lg flex-1 sm:flex-none justify-center"
               >
                 <Plus size={18} />{" "}
                 <span className="hidden sm:inline">New Project</span>
@@ -329,12 +319,9 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ProgressChart projectsDetail={projectsDetail} />
 
-          <div
-            className="bg-white rounded-xl p-6 border shadow-sm"
-            style={{ borderColor: "#00B5E2", borderWidth: "2px" }}
-          >
+          <div className="bg-white rounded-xl p-6 border shadow-sm border-[#003366]">
             <div className="flex items-center gap-3 mb-6">
-              <Activity className="text-[#00B5E2]" size={20} />
+              <Activity className="text-[#0000C0]" size={20} />
               <h2 className="text-xl font-semibold text-[#003366]">
                 Quick Stats
               </h2>
@@ -419,15 +406,11 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
-            {/* </div> */}
           </div>
         </div>
 
         {/* Projects Table Section */}
-        <div
-          className="bg-white rounded-xl border overflow-hidden shadow-sm"
-          style={{ borderColor: "#00B5E2", borderWidth: "2px" }}
-        >
+        <div className="bg-white rounded-xl border overflow-hidden shadow-sm border-[#003366]">
           <div className="p-4 border-b border-[#E6F0F8] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <h3 className="text-lg font-semibold text-[#003366]">
               All Projects ({projects.length})
@@ -436,20 +419,20 @@ export default function Dashboard() {
               {selectedProjects.length > 0 && (
                 <button
                   onClick={() => setShowBulkUpdate(true)}
-                  className="px-3 py-1.5 bg-[#00B5E2] text-white text-sm rounded-md hover:bg-[#0095C2] transition"
+                  className="px-3 py-1.5 bg-[#0000C0] text-white text-sm rounded-md hover:bg-[#000080] transition"
                 >
                   Update Status ({selectedProjects.length})
                 </button>
               )}
               <div className="relative w-full sm:w-64">
                 <Search
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#336699]"
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#003366]"
                   size={18}
                 />
                 <input
                   type="text"
                   placeholder="Search projects..."
-                  className="w-full pl-10 pr-4 py-2 border border-[#E6F0F8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00B5E2] focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 border border-[#E6F0F8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0000C0] focus:border-transparent"
                   value={searchTerm}
                   onChange={(e) => {
                     setSearchTerm(e.target.value);
@@ -466,7 +449,7 @@ export default function Dashboard() {
                 <tr>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-[#336699] uppercase tracking-wider"
+                    className="px-6 py-3 text-left text-xs font-medium text-[#003366] uppercase tracking-wider"
                   >
                     <input
                       type="checkbox"
@@ -475,30 +458,30 @@ export default function Dashboard() {
                         selectedProjects.length === currentProjects.length
                       }
                       onChange={toggleSelectAll}
-                      className="h-4 w-4 text-[#00B5E2] rounded border-[#E6F0F8] focus:ring-[#00B5E2]"
+                      className="h-4 w-4 text-[#0000C0] rounded border-[#E6F0F8] focus:ring-[#0000C0]"
                     />
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-[#336699] uppercase tracking-wider"
+                    className="px-6 py-3 text-left text-xs font-medium text-[#003366] uppercase tracking-wider"
                   >
                     Project
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-[#336699] uppercase tracking-wider"
+                    className="px-6 py-3 text-left text-xs font-medium text-[#003366] uppercase tracking-wider"
                   >
                     Status
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-[#336699] uppercase tracking-wider"
+                    className="px-6 py-3 text-left text-xs font-medium text-[#003366] uppercase tracking-wider"
                   >
                     Last Updated
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-center text-xs font-medium text-[#336699] uppercase tracking-wider"
+                    className="px-6 py-3 text-center text-xs font-medium text-[#003366] uppercase tracking-wider"
                   >
                     Actions
                   </th>
@@ -513,7 +496,7 @@ export default function Dashboard() {
                           type="checkbox"
                           checked={selectedProjects.includes(project._id)}
                           onChange={() => toggleProjectSelection(project._id)}
-                          className="h-4 w-4 text-[#00B5E2] rounded border-[#E6F0F8] focus:ring-[#00B5E2]"
+                          className="h-4 w-4 text-[#0000C0] rounded border-[#E6F0F8] focus:ring-[#0000C0]"
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -526,9 +509,9 @@ export default function Dashboard() {
                           className="flex items-center space-x-3 group"
                         >
                           <div className="bg-[#E6F0F8] p-2 rounded-lg">
-                            <Folder className="text-[#00B5E2]" size={18} />
+                            <Folder className="text-[#0000C0]" size={18} />
                           </div>
-                          <span className="text-sm font-medium text-[#003366] group-hover:text-[#00B5E2]">
+                          <span className="text-sm font-medium text-[#003366] group-hover:text-[#0000C0]">
                             {project.projectName}
                           </span>
                         </Link>
@@ -570,7 +553,7 @@ export default function Dashboard() {
                                 e.preventDefault();
                                 setProjectToEdit(project);
                               }}
-                              className="text-[#336699] hover:text-[#00B5E2] p-1 rounded-full hover:bg-[#E6F0F8]"
+                              className="text-[#003366] hover:text-[#0000C0] p-1 rounded-full hover:bg-[#E6F0F8]"
                               title="Edit status"
                             >
                               <Edit size={16} />
@@ -579,7 +562,7 @@ export default function Dashboard() {
                         </div>
                       </td>
 
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-[#336699]">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-[#003366]">
                         <div className="flex items-center">
                           <Clock size={14} className="mr-1 opacity-70" />
                           {new Date(project.updatedAt).toLocaleDateString()}
@@ -606,7 +589,7 @@ export default function Dashboard() {
                             }&projectDetails=${encodeURIComponent(
                               project.projectName
                             )}`}
-                            className="text-[#00B5E2] hover:text-[#003366] p-1 rounded-full hover:bg-[#E6F0F8]"
+                            className="text-[#0000C0] hover:text-[#003366] p-1 rounded-full hover:bg-[#E6F0F8]"
                             title="View project"
                           >
                             <ArrowRight size={18} />
@@ -618,7 +601,7 @@ export default function Dashboard() {
                 ) : (
                   <tr>
                     <td colSpan="5" className="px-6 py-8 text-center">
-                      <div className="flex flex-col items-center justify-center text-[#336699]">
+                      <div className="flex flex-col items-center justify-center text-[#003366]">
                         <FolderOpen className="text-[#E6F0F8] mb-2" size={24} />
                         No projects found
                       </div>
@@ -632,7 +615,7 @@ export default function Dashboard() {
           {/* Pagination */}
           {filteredProjects.length > projectsPerPage && (
             <div className="px-6 py-4 border-t border-[#E6F0F8] flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="text-sm text-[#336699]">
+              <div className="text-sm text-[#003366]">
                 Showing{" "}
                 <span className="font-medium">{indexOfFirstProject + 1}</span>{" "}
                 to{" "}
@@ -649,7 +632,7 @@ export default function Dashboard() {
                   disabled={currentPage === 1}
                   className={`px-3 py-1 rounded-md ${
                     currentPage === 1
-                      ? "bg-[#E6F0F8] text-[#336699] cursor-not-allowed"
+                      ? "bg-[#E6F0F8] text-[#003366] cursor-not-allowed"
                       : "bg-[#E6F0F8] text-[#003366] hover:bg-[#D0E0F0]"
                   }`}
                 >
@@ -662,7 +645,7 @@ export default function Dashboard() {
                       onClick={() => paginate(number)}
                       className={`px-3 py-1 rounded-md min-w-[36px] ${
                         currentPage === number
-                          ? "bg-[#00B5E2] text-white"
+                          ? "bg-[#0000C0] text-white"
                           : "bg-[#E6F0F8] text-[#003366] hover:bg-[#D0E0F0]"
                       }`}
                     >
@@ -677,7 +660,7 @@ export default function Dashboard() {
                   disabled={currentPage === totalPages}
                   className={`px-3 py-1 rounded-md ${
                     currentPage === totalPages
-                      ? "bg-[#E6F0F8] text-[#336699] cursor-not-allowed"
+                      ? "bg-[#E6F0F8] text-[#003366] cursor-not-allowed"
                       : "bg-[#E6F0F8] text-[#003366] hover:bg-[#D0E0F0]"
                   }`}
                 >
@@ -692,7 +675,7 @@ export default function Dashboard() {
       {/* Create Project Popup */}
       {showCreatePopup && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl border border-[#E6F0F8] shadow-xl p-6 w-full max-w-md">
+          <div className="bg-white rounded-xl border border-[#003366] shadow-xl p-6 w-full max-w-md">
             <h2 className="text-xl font-bold text-[#003366] mb-4">
               Create New Project
             </h2>
@@ -722,14 +705,14 @@ export default function Dashboard() {
               <div className="mb-4">
                 <label
                   htmlFor="projectName"
-                  className="block text-sm font-medium text-[#336699] mb-1"
+                  className="block text-sm font-medium text-[#003366] mb-1"
                 >
                   Project Name *
                 </label>
                 <input
                   type="text"
                   id="projectName"
-                  className="w-full px-3 py-2 border border-[#E6F0F8] rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B5E2]"
+                  className="w-full px-3 py-2 border border-[#003366] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0000C0]"
                   placeholder="Enter project name"
                   required
                   autoFocus
@@ -740,13 +723,13 @@ export default function Dashboard() {
                 <button
                   type="button"
                   onClick={() => setShowCreatePopup(false)}
-                  className="px-4 py-2 text-[#336699] hover:bg-[#E6F0F8] rounded-lg transition"
+                  className="px-4 py-2 text-[#003366] hover:bg-[#E6F0F8] rounded-lg transition"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-gradient-to-r from-[#00B5E2] to-[#00B5E2] text-white hover:from-[#0095C2] hover:to-[#0095C2] rounded-lg transition"
+                  className="px-4 py-2 bg-gradient-to-r from-[#0000C0] to-[#0000C0] text-white hover:from-[#000080] hover:to-[#000080] rounded-lg transition"
                 >
                   Create Project
                 </button>
@@ -759,18 +742,18 @@ export default function Dashboard() {
       {/* Delete Confirmation */}
       {projectToDelete && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl border border-[#E6F0F8] shadow-xl p-6 w-full max-w-md">
+          <div className="bg-white rounded-xl border border-[#003366] shadow-xl p-6 w-full max-w-md">
             <h2 className="text-xl font-bold text-[#003366] mb-2">
               Delete Project
             </h2>
-            <p className="text-[#336699] mb-6">
+            <p className="text-[#003366] mb-6">
               Are you sure you want to delete "{projectToDelete.projectName}"?
               This action cannot be undone.
             </p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setProjectToDelete(null)}
-                className="px-4 py-2 text-[#336699] hover:bg-[#E6F0F8] rounded-lg transition"
+                className="px-4 py-2 text-[#003366] hover:bg-[#E6F0F8] rounded-lg transition"
               >
                 Cancel
               </button>
@@ -788,7 +771,7 @@ export default function Dashboard() {
       {/* Edit Status Modal */}
       {projectToEdit && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl border border-[#E6F0F8] shadow-xl p-6 w-full max-w-md">
+          <div className="bg-white rounded-xl border border-[#003366] shadow-xl p-6 w-full max-w-md">
             <h2 className="text-xl font-bold text-[#003366] mb-4">
               Update Project Status
             </h2>
@@ -804,7 +787,7 @@ export default function Dashboard() {
                   key={status}
                   className={`p-3 border rounded-lg cursor-pointer transition-colors ${
                     projectToEdit.projectStatus === status
-                      ? "border-[#00B5E2] bg-[#E6F0F8]"
+                      ? "border-[#0000C0] bg-[#E6F0F8]"
                       : "border-[#E6F0F8] hover:bg-[#F5F9FC]"
                   }`}
                   onClick={() =>
@@ -816,7 +799,7 @@ export default function Dashboard() {
                 >
                   <div className="flex items-center gap-3">
                     {status === "Not Started" && (
-                      <Clock className="text-[#336699]" size={18} />
+                      <Clock className="text-[#003366]" size={18} />
                     )}
                     {status === "Data Received" && (
                       <Folder className="text-purple-500" size={18} />
@@ -825,7 +808,7 @@ export default function Dashboard() {
                       <CheckCircle className="text-amber-500" size={18} />
                     )}
                     {status === "Internal Review of Audit Report" && (
-                      <BarChart2 className="text-[#00B5E2]" size={18} />
+                      <BarChart2 className="text-[#0000C0]" size={18} />
                     )}
                     {status === "Audit Report Submitted" && (
                       <Archive className="text-green-500" size={18} />
@@ -838,7 +821,7 @@ export default function Dashboard() {
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setProjectToEdit(null)}
-                className="px-4 py-2 text-[#336699] hover:bg-[#E6F0F8] rounded-lg transition"
+                className="px-4 py-2 text-[#003366] hover:bg-[#E6F0F8] rounded-lg transition"
               >
                 Cancel
               </button>
@@ -860,7 +843,7 @@ export default function Dashboard() {
                     alert("Failed to update project status");
                   }
                 }}
-                className="px-4 py-2 bg-gradient-to-r from-[#00B5E2] to-[#00B5E2] text-white hover:from-[#0095C2] hover:to-[#0095C2] rounded-lg transition"
+                className="px-4 py-2 bg-gradient-to-r from-[#0000C0] to-[#0000C0] text-white hover:from-[#000080] hover:to-[#000080] rounded-lg transition"
               >
                 Update Status
               </button>
@@ -872,7 +855,7 @@ export default function Dashboard() {
       {/* Bulk Status Update Modal */}
       {showBulkUpdate && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl border border-[#E6F0F8] shadow-xl p-6 w-full max-w-md">
+          <div className="bg-white rounded-xl border border-[#003366] shadow-xl p-6 w-full max-w-md">
             <h2 className="text-xl font-bold text-[#003366] mb-4">
               Update Status for {selectedProjects.length} Projects
             </h2>
@@ -888,14 +871,14 @@ export default function Dashboard() {
                   key={status}
                   className={`p-3 border rounded-lg cursor-pointer transition-colors ${
                     bulkStatus === status
-                      ? "border-[#00B5E2] bg-[#E6F0F8]"
+                      ? "border-[#0000C0] bg-[#E6F0F8]"
                       : "border-[#E6F0F8] hover:bg-[#F5F9FC]"
                   }`}
                   onClick={() => setBulkStatus(status)}
                 >
                   <div className="flex items-center gap-3">
                     {status === "Not Started" && (
-                      <Clock className="text-[#336699]" size={18} />
+                      <Clock className="text-[#003366]" size={18} />
                     )}
                     {status === "Data Received" && (
                       <Folder className="text-purple-500" size={18} />
@@ -904,7 +887,7 @@ export default function Dashboard() {
                       <CheckCircle className="text-amber-500" size={18} />
                     )}
                     {status === "Internal Review of Audit Report" && (
-                      <BarChart2 className="text-[#00B5E2]" size={18} />
+                      <BarChart2 className="text-[#0000C0]" size={18} />
                     )}
                     {status === "Audit Report Submitted" && (
                       <Archive className="text-green-500" size={18} />
@@ -917,13 +900,13 @@ export default function Dashboard() {
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowBulkUpdate(false)}
-                className="px-4 py-2 text-[#336699] hover:bg-[#E6F0F8] rounded-lg transition"
+                className="px-4 py-2 text-[#003366] hover:bg-[#E6F0F8] rounded-lg transition"
               >
                 Cancel
               </button>
               <button
                 onClick={handleBulkStatusUpdate}
-                className="px-4 py-2 bg-gradient-to-r from-[#00B5E2] to-[#00B5E2] text-white hover:from-[#0095C2] hover:to-[#0095C2] rounded-lg transition"
+                className="px-4 py-2 bg-gradient-to-r from-[#0000C0] to-[#0000C0] text-white hover:from-[#000080] hover:to-[#000080] rounded-lg transition"
               >
                 Update All
               </button>
