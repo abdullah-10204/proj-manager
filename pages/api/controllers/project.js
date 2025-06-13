@@ -20,32 +20,38 @@ export const createProject = async (req, res) => {
 
 export const updateProjectStatus = async (req, res) => {
   try {
-    const { projectId, status } = req.body;
+    const { projectId, projectIds, status } = req.body;
 
-    if (!projectId || !status) {
+    if ((!projectId && (!projectIds || !Array.isArray(projectIds))) || !status) {
       return res.status(400).json({
         success: false,
-        message: "Both projectId and status are required."
+        message: "Either projectId or projectIds array is required along with status."
       });
     }
 
-    const updatedProject = await Project.findByIdAndUpdate(
-      projectId,
-      { projectStatus: status },
-      { new: true }
+    const isBulkUpdate = projectIds && Array.isArray(projectIds);
+    const idsToUpdate = isBulkUpdate ? projectIds : [projectId];
+
+    const updateResult = await Project.updateMany(
+      { _id: { $in: idsToUpdate } },
+      { projectStatus: status }
     );
 
-    if (!updatedProject) {
+    if (updateResult.matchedCount === 0) {
       return res.status(404).json({
         success: false,
-        message: "Project not found."
+        message: "No projects found with the provided ID(s)."
       });
     }
+
+    const updatedProjects = await Project.find({ _id: { $in: idsToUpdate } });
 
     return res.status(200).json({
       success: true,
-      message: "Project status updated successfully.",
-      data: updatedProject
+      message: isBulkUpdate 
+        ? `Updated status for ${updateResult.modifiedCount} projects.`
+        : "Project status updated successfully.",
+      data: isBulkUpdate ? updatedProjects : updatedProjects[0]
     });
 
   } catch (error) {

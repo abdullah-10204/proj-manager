@@ -3,7 +3,7 @@ import Project from '../models/project';
 const OpenAI = require('openai');
 
 const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY || 'your-api-key-here'
+    apiKey: process.env.OPENAI_API_KEY
 });
 
 const getChecklistItems = async (req, res) => {

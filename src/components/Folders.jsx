@@ -19,9 +19,10 @@ import { MoreVertical, Plus, FolderPlus, Upload, File, Folder } from "lucide-rea
 import { createClient } from '@supabase/supabase-js';
 import Cookies from "js-cookie";
 
-const supabaseUrl = "https://rixdrbokebnvidwyzvzo.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpeGRyYm9rZWJudmlkd3l6dnpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI2MjMzMzIsImV4cCI6MjA0ODE5OTMzMn0.Zhnz5rLRoIhtHyF52pFjzYijNdxgZBvEr9LtOxR2Lhw";
+const supabaseUrl = "https://byaiqxqedhbtgchwotds.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ5YWlxeHFlZGhidGdjaHdvdGRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk4MjY1ODIsImV4cCI6MjA2NTQwMjU4Mn0.XKkb_c3ca0V4LnAuCox7J-jlNHNyuC1mYO2pMUFsvZc";
 const supabase = createClient(supabaseUrl, supabaseKey);
+
 
 const FileBrowser = ({ folders: initialFolders, projectId }) => {
   const [folders, setFolders] = useState(initialFolders);
