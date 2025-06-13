@@ -1,5 +1,10 @@
 import connectToDatabase from '../config/db';
 import Project from '../models/project';
+const OpenAI = require('openai');
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY || 'your-api-key-here'
+});
 
 const getChecklistItems = async (req, res) => {
     try {
@@ -91,8 +96,49 @@ const getAllProjectsChecklists = async (req, res) => {
         });
     }
 };
+
+
+
+const askAiQuestion = async (req, res) => {
+  try {
+    const { question, context } = req.body;
+
+    if (!question) {
+      return res.status(400).json({ error: 'Question is required' });
+    }
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "system",
+          content: "You are a compliance expert assistant. Provide clear, concise answers to compliance questions. " + 
+                   (context || "The user is asking about compliance requirements.")
+        },
+        {
+          role: "user",
+          content: question
+        }
+      ],
+      temperature: 0.7,
+      max_tokens: 500
+    });
+
+    const answer = completion.choices[0]?.message?.content || "I couldn't generate an answer for this question.";
+    
+    return res.status(200).json({ answer });
+
+  } catch (error) {
+    console.error('AI Assistant Error:', error);
+    return res.status(500).json({
+      error: error.message || 'Failed to process your question'
+    });
+  }
+};
+
 export {
     getChecklistItems,
     updateChecklistAnswer,
-    getAllProjectsChecklists
+    getAllProjectsChecklists,
+    askAiQuestion
 };

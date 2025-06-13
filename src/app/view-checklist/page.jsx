@@ -11,6 +11,10 @@ const ChecklistContent = () => {
     const [expandedId, setExpandedId] = useState(null);
     const [editingId, setEditingId] = useState(null);
     const [editAnswer, setEditAnswer] = useState('');
+    const [aiQuestion, setAiQuestion] = useState('');
+    const [aiAnswer, setAiAnswer] = useState('');
+    const [isAiLoading, setIsAiLoading] = useState(false);
+    const [aiError, setAiError] = useState(null);
     const searchParam = useSearchParams();
     const projectId = searchParam.get("projectId");
     const role = Cookies.get("Role");
@@ -31,7 +35,7 @@ const ChecklistContent = () => {
         };
 
         fetchAllChecklistItems();
-    }, [projectId]); // Added projectId as dependency
+    }, [projectId]);
 
     const toggleExpand = (id) => {
         setExpandedId(expandedId === id ? null : id);
@@ -61,6 +65,28 @@ const ChecklistContent = () => {
             setEditingId(null);
         } catch (err) {
             setError(err.message);
+        }
+    };
+
+    const handleAiQuestionSubmit = async (e) => {
+        e.preventDefault();
+        if (!aiQuestion.trim()) return;
+        
+        setIsAiLoading(true);
+        setAiError(null);
+        
+        try {
+            const response = await axios.post('/api/routes/checklist?action=askAiQuestion', {
+                question: aiQuestion,
+                context: `This question is related to a compliance checklist project (ID: ${projectId}). The user is asking:`
+            });
+            
+            setAiAnswer(response.data.answer);
+            setAiQuestion('');
+        } catch (err) {
+            setAiError(err.response?.data?.message || err.message);
+        } finally {
+            setIsAiLoading(false);
         }
     };
 
@@ -94,6 +120,74 @@ const ChecklistContent = () => {
             <div className="mb-8 text-center">
                 <h1 className="text-3xl font-bold text-gray-800 mb-2">Compliance Checklist</h1>
                 <p className="text-gray-600">Review and manage compliance requirements for your project</p>
+            </div>
+
+            {/* AI Assistant Section */}
+            <div className="bg-white rounded-xl shadow-md overflow-hidden mb-6 border border-blue-100">
+                <div className="p-5 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
+                    <div className="flex items-center">
+                        <div className="p-2 rounded-full bg-blue-100 mr-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 className="text-lg font-semibold text-gray-800">AI Compliance Assistant</h2>
+                            <p className="text-sm text-gray-600">Ask questions about compliance requirements</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div className="p-5">
+                    <form onSubmit={handleAiQuestionSubmit} className="mb-4">
+                        <div className="flex space-x-2">
+                            <input
+                                type="text"
+                                value={aiQuestion}
+                                onChange={(e) => setAiQuestion(e.target.value)}
+                                placeholder="Ask a question about compliance..."
+                                className="flex-1 p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                disabled={isAiLoading}
+                            />
+                            <button
+                                type="submit"
+                                disabled={isAiLoading || !aiQuestion.trim()}
+                                className="px-4 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed flex items-center"
+                            >
+                                {isAiLoading ? (
+                                    <>
+                                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Thinking...
+                                    </>
+                                ) : 'Ask'}
+                            </button>
+                        </div>
+                    </form>
+
+                    {aiError && (
+                        <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded-md mb-4">
+                            {aiError}
+                        </div>
+                    )}
+
+                    {aiAnswer && (
+                        <div className="bg-gray-50 border border-gray-200 rounded-md p-4">
+                            <div className="flex items-start">
+                                <div className="flex-shrink-0 mt-1 mr-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                    </svg>
+                                </div>
+                                <div className="prose prose-sm max-w-none">
+                                    <p className="whitespace-pre-wrap">{aiAnswer}</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
 
             <div className="bg-white rounded-xl shadow-md overflow-hidden mb-6">
