@@ -410,10 +410,13 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
                             </>
                           ) : (
                             <DropdownMenuItem
-                              onClick={() => window.open(
-                                `https://rixdrbokebnvidwyzvzo.supabase.co/storage/v1/object/public/proj-manager/${item.url}`,
-                                '_blank'
-                              )}
+                              onClick={() =>
+                                window.open(
+                                  `https://byaiqxqedhbtgchwotds.supabase.co/storage/v1/object/public/proj-manager/${item.url}`,
+                                  '_blank'
+                                )
+                              }
+
                             >
                               <File className="mr-2 h-4 w-4" />
                               Open File
