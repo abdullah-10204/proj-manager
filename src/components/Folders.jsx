@@ -15,14 +15,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreVertical, Plus, FolderPlus, Upload, File, Folder } from "lucide-react";
+import { MoreVertical, Plus, FolderPlus, Upload, File, Folder, ChevronUp } from "lucide-react";
 import { createClient } from '@supabase/supabase-js';
 import Cookies from "js-cookie";
 
 const supabaseUrl = "https://byaiqxqedhbtgchwotds.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ5YWlxeHFlZGhidGdjaHdvdGRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk4MjY1ODIsImV4cCI6MjA2NTQwMjU4Mn0.XKkb_c3ca0V4LnAuCox7J-jlNHNyuC1mYO2pMUFsvZc";
 const supabase = createClient(supabaseUrl, supabaseKey);
-
 
 const FileBrowser = ({ folders: initialFolders, projectId }) => {
   const [folders, setFolders] = useState(initialFolders);
@@ -107,13 +106,7 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
       setFolders(updatedProject.folders);
       setIsFolderDialogOpen(false);
       setNewFolderName("");
-
-      // Refresh the page to see latest changes
       window.location.reload();
-
-      // Alternatively, if you don't want full page reload:
-      // fetchFolders(); // You would need to implement this function
-
     } catch (error) {
       console.error("Error creating folder:", error);
       alert("Error creating folder");
@@ -145,7 +138,6 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
       setIsFolderDialogOpen(false);
       setNewFolderName("");
       alert("Subfolder created successfully");
-
     } catch (error) {
       console.error("Error creating subfolder:", error);
       alert("Error creating subfolder");
@@ -259,18 +251,19 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
   const currentContents = getCurrentContents();
 
   return (
-    <div className="max-w-7xl mx-auto mt-8 rounded-lg shadow-md p-6 bg-white">
+    <div className="bg-white rounded-xl border shadow-sm p-6" style={{ borderColor: '#00B5E2', borderWidth: '2px' }}>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center">
           <button
             onClick={navigateUp}
             disabled={currentPath.length === 0}
-            className={`mr-2 ${currentPath.length === 0 ? 'text-gray-400' : 'text-blue-600 hover:text-blue-800'}`}
+            className={`flex items-center mr-4 ${currentPath.length === 0 ? 'text-[#E6F0F8] cursor-not-allowed' : 'text-[#00B5E2] hover:text-[#003366]'}`}
           >
-            ← Up
+            <ChevronUp className="h-5 w-5 mr-1" />
+            <span>Up</span>
           </button>
-          <div className="flex items-center text-sm text-gray-600">
-            <span>Root</span>
+          <div className="flex items-center text-sm text-[#336699]">
+            <span className="font-medium">Root</span>
             {currentPath.map((pathId, index) => {
               let pathItem;
               let currentLevel = folders;
@@ -283,8 +276,8 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
 
               return pathItem ? (
                 <span key={pathId} className="flex items-center">
-                  <span className="mx-1">/</span>
-                  <span>{pathItem.name}</span>
+                  <span className="mx-2 text-[#00B5E2]">/</span>
+                  <span className="font-medium">{pathItem.name}</span>
                 </span>
               ) : null;
             })}
@@ -293,8 +286,8 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
 
         {role === "Admin" && currentPath.length === 0 && (
           <Button
-            variant="outline"
             onClick={handleAddFolder}
+            className="bg-gradient-to-r from-[#00B5E2] to-[#00B5E2] hover:from-[#0095C2] hover:to-[#0095C2] text-white"
           >
             <FolderPlus className="h-4 w-4 mr-2" />
             New Folder
@@ -308,13 +301,13 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
             {role === "Admin" && (
               <>
                 <Button
-                  variant="outline"
                   onClick={() => handleAddSubfolder(currentPath[currentPath.length - 1])}
+                  className="bg-gradient-to-r from-[#00B5E2] to-[#00B5E2] hover:from-[#0095C2] hover:to-[#0095C2] text-white"
                 >
                   <FolderPlus className="h-4 w-4 mr-2" />
                   New Folder
                 </Button>
-                <Button variant="outline" asChild>
+                <Button asChild className="bg-gradient-to-r from-[#00B5E2] to-[#00B5E2] hover:from-[#0095C2] hover:to-[#0095C2] text-white">
                   <label>
                     <Upload className="h-4 w-4 mr-2" />
                     Upload
@@ -334,50 +327,50 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
         </div>
       )}
 
-      <div className="border rounded-lg overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="border border-[#E6F0F8] rounded-lg overflow-hidden">
+        <table className="min-w-full divide-y divide-[#E6F0F8]">
+          <thead className="bg-[#E6F0F8]">
             <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[#336699] uppercase tracking-wider">
                 Name
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[#336699] uppercase tracking-wider">
                 Type
               </th>
               {role === "Admin" && (
-                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-[#336699] uppercase tracking-wider">
                   Actions
                 </th>
               )}
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white divide-y divide-[#E6F0F8]">
             {currentContents.length === 0 ? (
               <tr>
-                <td colSpan={role === "Admin" ? 3 : 2} className="px-6 py-4 text-center text-gray-500">
+                <td colSpan={role === "Admin" ? 3 : 2} className="px-6 py-4 text-center text-[#336699]">
                   No items in this folder
                 </td>
               </tr>
             ) : (
               currentContents.map((item) => (
-                <tr key={item._id} className="hover:bg-gray-50">
+                <tr key={item._id} className="hover:bg-[#F5F9FC]">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       {isFolder(item) ? (
-                        <Folder className="h-5 w-5 text-blue-500 mr-3" />
+                        <Folder className="h-5 w-5 text-[#00B5E2] mr-3" />
                       ) : (
-                        <File className="h-5 w-5 text-gray-400 mr-3" />
+                        <File className="h-5 w-5 text-[#336699] mr-3" />
                       )}
                       <button
                         onClick={() => isFolder(item) && navigateToFolder(item._id)}
-                        className={`${isFolder(item) ? 'text-blue-600 hover:text-blue-800 cursor-pointer' : 'text-gray-900'}`}
+                        className={`${isFolder(item) ? 'text-[#00B5E2] hover:text-[#003366] cursor-pointer' : 'text-[#003366]'}`}
                       >
                         {item.name}
                       </button>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-[#E6F0F8] text-[#003366]">
                       {isFolder(item) ? 'Folder' : 'File'}
                     </span>
                   </td>
@@ -385,20 +378,23 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-[#336699] hover:text-[#00B5E2]">
                             <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent align="end" className="border border-[#E6F0F8]">
                           {isFolder(item) ? (
                             <>
-                              <DropdownMenuItem onClick={() => handleAddSubfolder(item._id)}>
-                                <FolderPlus className="mr-2 h-4 w-4" />
+                              <DropdownMenuItem 
+                                onClick={() => handleAddSubfolder(item._id)}
+                                className="text-[#003366] hover:bg-[#E6F0F8]"
+                              >
+                                <FolderPlus className="mr-2 h-4 w-4 text-[#00B5E2]" />
                                 Add Subfolder
                               </DropdownMenuItem>
-                              <DropdownMenuItem asChild>
+                              <DropdownMenuItem asChild className="text-[#003366] hover:bg-[#E6F0F8]">
                                 <label className="cursor-pointer">
-                                  <Upload className="mr-2 h-4 w-4" />
+                                  <Upload className="mr-2 h-4 w-4 text-[#00B5E2]" />
                                   Upload File
                                   <input
                                     type="file"
@@ -416,9 +412,9 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
                                   '_blank'
                                 )
                               }
-
+                              className="text-[#003366] hover:bg-[#E6F0F8]"
                             >
-                              <File className="mr-2 h-4 w-4" />
+                              <File className="mr-2 h-4 w-4 text-[#00B5E2]" />
                               Open File
                             </DropdownMenuItem>
                           )}
@@ -434,9 +430,9 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
       </div>
 
       <Dialog open={isFolderDialogOpen} onOpenChange={setIsFolderDialogOpen}>
-        <DialogContent>
+        <DialogContent className="border border-[#00B5E2]">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="text-[#003366]">
               {selectedFolderId ? 'Create New Subfolder' : 'Create New Folder'}
             </DialogTitle>
           </DialogHeader>
@@ -445,13 +441,21 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
               placeholder={selectedFolderId ? 'Subfolder name' : 'Folder name'}
               value={newFolderName}
               onChange={(e) => setNewFolderName(e.target.value)}
+              className="border border-[#E6F0F8] focus:border-[#00B5E2]"
             />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsFolderDialogOpen(false)}>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsFolderDialogOpen(false)}
+              className="border border-[#E6F0F8] text-[#336699] hover:bg-[#E6F0F8]"
+            >
               Cancel
             </Button>
-            <Button onClick={selectedFolderId ? confirmAddSubfolder : confirmAddFolder}>
+            <Button 
+              onClick={selectedFolderId ? confirmAddSubfolder : confirmAddFolder}
+              className="bg-gradient-to-r from-[#00B5E2] to-[#00B5E2] hover:from-[#0095C2] hover:to-[#0095C2] text-white"
+            >
               Create
             </Button>
           </DialogFooter>
@@ -459,10 +463,10 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
       </Dialog>
 
       {isUploading && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <p className="text-lg font-medium">Uploading file...</p>
-            <p className="text-sm text-gray-500">Please wait</p>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg border border-[#00B5E2] shadow-lg">
+            <p className="text-lg font-medium text-[#003366]">Uploading file...</p>
+            <p className="text-sm text-[#336699]">Please wait</p>
           </div>
         </div>
       )}

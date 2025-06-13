@@ -16,7 +16,7 @@ import {
   Search,
   FolderOpen,
   LogOut,
-  Edit
+  Edit,
 } from "lucide-react";
 import Link from "next/link";
 import axios from "axios";
@@ -25,68 +25,73 @@ import { useRouter } from "next/navigation";
 
 const ProgressChart = ({ projectsDetail }) => {
   const statusOrder = {
-    'Not Started': 0,
-    'Data Received': 1,
-    'Audit Completed': 2,
-    'Internal Review of Audit Report': 3,
-    'Audit Report Submitted': 4
+    "Not Started": 0,
+    "Data Received": 1,
+    "Audit Completed": 2,
+    "Internal Review of Audit Report": 3,
+    "Audit Report Submitted": 4,
   };
 
-  const projectData = projectsDetail.map(project => {
-    const status = project.projectStatus || 'Not Started';
+  const projectData = projectsDetail.map((project) => {
+    const status = project.projectStatus || "Not Started";
     const statusValue = statusOrder[status] || 0;
     const percentage = Math.round((statusValue / 4) * 100);
 
     return {
       id: project.id || project._id,
-      name: project.projectName || 'Unnamed Project',
+      name: project.projectName || "Unnamed Project",
       value: percentage,
       status,
-      statusValue
+      statusValue,
     };
   });
 
   projectData.sort((a, b) => b.statusValue - a.statusValue);
 
   return (
-<div className="bg-white rounded-xl p-6 border shadow-sm" style={{ borderColor: '#002BFF', borderWidth: '4px' }}>
+    <div
+      className="bg-white rounded-xl p-6 border shadow-sm"
+      style={{ borderColor: "#00B5E2", borderWidth: "2px" }}
+    >
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-3">
-          <TrendingUp className="text-blue-500" size={20} />
-          <h2 className="text-xl font-semibold text-gray-900">
+          <TrendingUp className="text-[#00B5E2]" size={20} />
+          <h2 className="text-xl font-semibold text-[#003366]">
             Project Status Progress
           </h2>
         </div>
-        <div className="text-sm text-blue-600 font-medium">
-          {projectsDetail.length} {projectsDetail.length === 1 ? 'Project' : 'Projects'}
+        <div className="text-sm text-[#00B5E2] font-medium">
+          {projectsDetail.length}{" "}
+          {projectsDetail.length === 1 ? "Project" : "Projects"}
         </div>
       </div>
 
       {projectData.length > 0 ? (
-        <div className="space-y-4 max-h-[40vh] overflow-y-auto pr-1 custom-scrollbar ">
+        <div className="space-y-4 max-h-[40vh] overflow-y-auto pr-1 custom-scrollbar">
           {projectData.map((item) => {
-            const barColor = item.status === 'Audit Report Submitted'
-              ? 'bg-gradient-to-r from-green-500 to-green-400'
-              : item.status === 'Internal Review of Audit Report'
-                ? 'bg-gradient-to-r from-blue-500 to-blue-400'
-                : item.status === 'Audit Completed'
-                  ? 'bg-gradient-to-r from-amber-500 to-amber-400'
-                  : item.status === 'Data Received'
-                    ? 'bg-gradient-to-r from-purple-500 to-purple-400'
-                    : 'bg-gradient-to-r from-gray-500 to-gray-400';
+            const barColor =
+              item.status === "Audit Report Submitted"
+                ? "bg-gradient-to-r from-green-500 to-green-400"
+                : item.status === "Internal Review of Audit Report"
+                ? "bg-gradient-to-r from-[#00B5E2] to-[#00B5E2]"
+                : item.status === "Audit Completed"
+                ? "bg-gradient-to-r from-amber-500 to-amber-400"
+                : item.status === "Data Received"
+                ? "bg-gradient-to-r from-purple-500 to-purple-400"
+                : "bg-gradient-to-r from-gray-500 to-gray-400";
 
             return (
               <div key={item.id} className="group">
                 <div className="flex items-center justify-between mb-1">
-                  <div className="text-sm font-medium text-gray-700 truncate max-w-[180px]">
+                  <div className="text-sm font-medium text-[#003366] truncate max-w-[180px]">
                     {item.name}
                   </div>
-                  <div className="text-xs font-medium text-gray-500">
+                  <div className="text-xs font-medium text-[#336699]">
                     {item.status}
                   </div>
                 </div>
 
-                <div className="w-full h-4 bg-gray-100 rounded-full overflow-hidden relative">
+                <div className="w-full h-4 bg-[#E6F0F8] rounded-full overflow-hidden relative">
                   <div
                     className={`h-full rounded-full ${barColor} transition-all duration-500 ease-out`}
                     style={{ width: `${item.value}%` }}
@@ -102,32 +107,32 @@ const ProgressChart = ({ projectsDetail }) => {
           })}
         </div>
       ) : (
-        <div className="h-40 flex flex-col items-center justify-center text-gray-500">
-          <FolderOpen className="text-gray-300 mb-2" size={24} />
+        <div className="h-40 flex flex-col items-center justify-center text-[#336699]">
+          <FolderOpen className="text-[#E6F0F8] mb-2" size={24} />
           <p>No project data available</p>
         </div>
       )}
 
       <div className="flex flex-wrap justify-center mt-6 gap-3 text-xs">
-        <div className="flex items-center gap-1.5 px-2 py-1 bg-gray-50 rounded-full">
+        <div className="flex items-center gap-1.5 px-2 py-1 bg-[#E6F0F8] rounded-full">
           <div className="w-3 h-3 rounded-full bg-gradient-to-r from-gray-500 to-gray-400"></div>
-          <span>Not Started</span>
+          <span className="text-[#003366]">Not Started</span>
         </div>
-        <div className="flex items-center gap-1.5 px-2 py-1 bg-gray-50 rounded-full">
+        <div className="flex items-center gap-1.5 px-2 py-1 bg-[#E6F0F8] rounded-full">
           <div className="w-3 h-3 rounded-full bg-gradient-to-r from-purple-500 to-purple-400"></div>
-          <span>Data Received</span>
+          <span className="text-[#003366]">Data Received</span>
         </div>
-        <div className="flex items-center gap-1.5 px-2 py-1 bg-gray-50 rounded-full">
+        <div className="flex items-center gap-1.5 px-2 py-1 bg-[#E6F0F8] rounded-full">
           <div className="w-3 h-3 rounded-full bg-gradient-to-r from-amber-500 to-amber-400"></div>
-          <span>Audit Completed</span>
+          <span className="text-[#003366]">Audit Completed</span>
         </div>
-        <div className="flex items-center gap-1.5 px-2 py-1 bg-gray-50 rounded-full">
-          <div className="w-3 h-3 rounded-full bg-gradient-to-r from-blue-500 to-blue-400"></div>
-          <span>Internal Review</span>
+        <div className="flex items-center gap-1.5 px-2 py-1 bg-[#E6F0F8] rounded-full">
+          <div className="w-3 h-3 rounded-full bg-gradient-to-r from-[#00B5E2] to-[#00B5E2]"></div>
+          <span className="text-[#003366]">Internal Review</span>
         </div>
-        <div className="flex items-center gap-1.5 px-2 py-1 bg-gray-50 rounded-full">
+        <div className="flex items-center gap-1.5 px-2 py-1 bg-[#E6F0F8] rounded-full">
           <div className="w-3 h-3 rounded-full bg-gradient-to-r from-green-500 to-green-400"></div>
-          <span>Report Submitted</span>
+          <span className="text-[#003366]">Report Submitted</span>
         </div>
       </div>
     </div>
@@ -146,7 +151,7 @@ export default function Dashboard() {
   const [projectsDetail, setProjectsDetail] = useState([]);
   const [selectedProjects, setSelectedProjects] = useState([]);
   const [showBulkUpdate, setShowBulkUpdate] = useState(false);
-  const [bulkStatus, setBulkStatus] = useState('Not Started');
+  const [bulkStatus, setBulkStatus] = useState("Not Started");
   const role = Cookies.get("Role");
   const router = useRouter();
 
@@ -158,16 +163,20 @@ export default function Dashboard() {
 
   const fetchAllChecklistItems = async () => {
     try {
-      const response = await axios.post('/api/routes/checklist?action=getAllProjectsChecklists');
-      const projectsWithChecklists = Array.isArray(response.data.data) ? response.data.data : [];
+      const response = await axios.post(
+        "/api/routes/checklist?action=getAllProjectsChecklists"
+      );
+      const projectsWithChecklists = Array.isArray(response.data.data)
+        ? response.data.data
+        : [];
       console.log("projectsWithChecklists", projectsWithChecklists);
 
-      const normalizedProjects = projectsWithChecklists.map(project => ({
+      const normalizedProjects = projectsWithChecklists.map((project) => ({
         ...project,
         id: project.projectId || project._id,
         projectName: project.projectName || `Project ${project._id}`,
         checklist: project.checklist || [],
-        projectStatus: project.projectStatus
+        projectStatus: project.projectStatus,
       }));
 
       setProjectsDetail(normalizedProjects);
@@ -180,26 +189,28 @@ export default function Dashboard() {
 
   const handleDeleteProject = async (projectId) => {
     try {
-      await axios.post('/api/routes/project?action=deleteProject', {
-        projectId: projectId
+      await axios.post("/api/routes/project?action=deleteProject", {
+        projectId: projectId,
       });
 
-      setProjects(projects.filter(project => project._id !== projectId));
+      setProjects(projects.filter((project) => project._id !== projectId));
       setProjectToDelete(null);
       fetchProjects();
     } catch (error) {
-      console.error('Error deleting project:', error);
-      alert('Failed to delete project');
+      console.error("Error deleting project:", error);
+      alert("Failed to delete project");
     }
   };
 
   const fetchProjects = async () => {
     try {
-      const response = await axios.get('/api/routes/project?action=getProjects');
+      const response = await axios.get(
+        "/api/routes/project?action=getProjects"
+      );
       setProjects(
-        response.data.map(project => ({
+        response.data.map((project) => ({
           ...project,
-          projectStatus: project.projectStatus || 'Not Started'
+          projectStatus: project.projectStatus || "Not Started",
         }))
       );
       setLoading(false);
@@ -213,54 +224,56 @@ export default function Dashboard() {
     fetchProjects();
   }, []);
 
-  const filteredProjects = projects.filter((project) =>
-    project.projectName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (project.projectStatus?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  const filteredProjects = projects.filter(
+    (project) =>
+      project.projectName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (project.projectStatus?.toLowerCase() || "").includes(
+        searchTerm.toLowerCase()
+      )
   );
 
   const indexOfLastProject = currentPage * projectsPerPage;
   const indexOfFirstProject = indexOfLastProject - projectsPerPage;
-  const currentProjects = filteredProjects.slice(indexOfFirstProject, indexOfLastProject);
+  const currentProjects = filteredProjects.slice(
+    indexOfFirstProject,
+    indexOfLastProject
+  );
   const totalPages = Math.ceil(filteredProjects.length / projectsPerPage);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Calculate stats based on status
   const statusStats = projects.reduce((acc, project) => {
-    const status = project.projectStatus || 'Not Started';
+    const status = project.projectStatus || "Not Started";
     acc[status] = (acc[status] || 0) + 1;
     return acc;
   }, {});
 
-  // Handle project selection
   const toggleProjectSelection = (projectId) => {
-    setSelectedProjects(prev =>
+    setSelectedProjects((prev) =>
       prev.includes(projectId)
-        ? prev.filter(id => id !== projectId)
+        ? prev.filter((id) => id !== projectId)
         : [...prev, projectId]
     );
   };
 
-  // Handle select all projects on current page
   const toggleSelectAll = () => {
     if (selectedProjects.length === currentProjects.length) {
       setSelectedProjects([]);
     } else {
-      setSelectedProjects(currentProjects.map(project => project._id));
+      setSelectedProjects(currentProjects.map((project) => project._id));
     }
   };
 
-  // Handle bulk status update
   const handleBulkStatusUpdate = async () => {
     if (selectedProjects.length === 0) {
-      alert('Please select at least one project');
+      alert("Please select at least one project");
       return;
     }
 
     try {
-      await axios.post('/api/routes/project?action=updateProjectStatus', {
+      await axios.post("/api/routes/project?action=updateProjectStatus", {
         projectIds: selectedProjects,
-        status: bulkStatus
+        status: bulkStatus,
       });
 
       fetchProjects();
@@ -268,43 +281,46 @@ export default function Dashboard() {
       setSelectedProjects([]);
       setShowBulkUpdate(false);
     } catch (error) {
-      console.error('Error updating project status:', error);
-      alert('Failed to update project status');
+      console.error("Error updating project status:", error);
+      alert("Failed to update project status");
     }
   };
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 bg-[#00004F]">
+    <div className="min-h-screen p-4 sm:p-6 bg-[#E6F0F8]">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-<div
-  className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 rounded-xl p-4"
-  style={{
-    borderColor: '#002BFF',
-    borderWidth: '4px',
-    borderStyle: 'solid',
-  }}
->
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white">Project Dashboard</h1>
-            <p className="text-gray-600">Manage your current projects</p>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 rounded-xl p-4 bg-[#003366]">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center">
+              <span className="text-2xl sm:text-3xl font-bold text-white">
+                Tender
+              </span>
+              <span className="text-2xl sm:text-3xl font-bold text-white">
+                Evidence
+              </span>
+              <span className="text-2xl sm:text-3xl font-bold text-[#00B5E2]">
+                360
+              </span>
+            </div>
           </div>
 
           <div className="flex items-center gap-3 w-full sm:w-auto">
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition"
+              className="flex items-center gap-2 px-3 py-2 text-sm text-white hover:bg-[#336699] rounded-lg transition"
             >
               <LogOut size={16} />
-              <span className="hidden sm:inline ">Logout</span>
+              <span className="hidden sm:inline">Logout</span>
             </button>
 
             {role === "Admin" && (
               <button
                 onClick={() => setShowCreatePopup(true)}
-                className="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 rounded-lg transition flex items-center gap-2 shadow-md hover:shadow-lg flex-1 sm:flex-none justify-center"
+                className="px-4 py-2 bg-gradient-to-r from-[#00B5E2] to-[#00B5E2] text-white hover:from-[#0095C2] hover:to-[#0095C2] rounded-lg transition flex items-center gap-2 shadow-md hover:shadow-lg flex-1 sm:flex-none justify-center"
               >
-                <Plus size={18} /> <span className="hidden sm:inline">New Project</span>
+                <Plus size={18} />{" "}
+                <span className="hidden sm:inline">New Project</span>
               </button>
             )}
           </div>
@@ -313,87 +329,127 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ProgressChart projectsDetail={projectsDetail} />
 
-
-          <div className="bg-white rounded-xl p-6 border shadow-sm" style={{ borderColor: '#002BFF', borderWidth: '4px' }}>
+          <div
+            className="bg-white rounded-xl p-6 border shadow-sm"
+            style={{ borderColor: "#00B5E2", borderWidth: "2px" }}
+          >
             <div className="flex items-center gap-3 mb-6">
-              <Activity className="text-blue-500" size={20} />
-              <h2 className="text-xl font-semibold text-gray-900">Quick Stats</h2>
+              <Activity className="text-[#00B5E2]" size={20} />
+              <h2 className="text-xl font-semibold text-[#003366]">
+                Quick Stats
+              </h2>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-blue-50 p-4 rounded-lg">
-                <div className="text-sm text-blue-600 font-medium mb-1">Total Projects</div>
-                <div className="text-2xl font-bold text-gray-900">{projects.length}</div>
+                <div className="text-sm text-blue-600 font-medium mb-1">
+                  Total Projects
+                </div>
+                <div className="text-2xl font-bold text-gray-900">
+                  {projects.length}
+                </div>
               </div>
 
               <div className="bg-gray-50 p-4 rounded-lg">
-                <div className="text-sm text-gray-600 font-medium mb-1">Not Started</div>
+                <div className="text-sm text-gray-600 font-medium mb-1">
+                  Not Started
+                </div>
                 <div className="text-2xl font-bold text-gray-900">
                   {projects.length} {/* All projects start as Not Started */}
                 </div>
               </div>
 
               <div className="bg-purple-50 p-4 rounded-lg">
-                <div className="text-sm text-purple-600 font-medium mb-1">Data Received</div>
+                <div className="text-sm text-purple-600 font-medium mb-1">
+                  Data Received
+                </div>
                 <div className="text-2xl font-bold text-gray-900">
-                  {projects.filter(p =>
-                    ['Data Received', 'Audit Completed', 'Internal Review of Audit Report', 'Audit Report Submitted']
-                      .includes(p.projectStatus)
-                  ).length}
+                  {
+                    projects.filter((p) =>
+                      [
+                        "Data Received",
+                        "Audit Completed",
+                        "Internal Review of Audit Report",
+                        "Audit Report Submitted",
+                      ].includes(p.projectStatus)
+                    ).length
+                  }
                 </div>
               </div>
 
               <div className="bg-amber-50 p-4 rounded-lg">
-                <div className="text-sm text-amber-600 font-medium mb-1">Audit Completed</div>
+                <div className="text-sm text-amber-600 font-medium mb-1">
+                  Audit Completed
+                </div>
                 <div className="text-2xl font-bold text-gray-900">
-                  {projects.filter(p =>
-                    ['Audit Completed', 'Internal Review of Audit Report', 'Audit Report Submitted']
-                      .includes(p.projectStatus)
-                  ).length}
+                  {
+                    projects.filter((p) =>
+                      [
+                        "Audit Completed",
+                        "Internal Review of Audit Report",
+                        "Audit Report Submitted",
+                      ].includes(p.projectStatus)
+                    ).length
+                  }
                 </div>
               </div>
 
               <div className="bg-indigo-50 p-4 rounded-lg">
-                <div className="text-sm text-indigo-600 font-medium mb-1">Internal Review</div>
+                <div className="text-sm text-indigo-600 font-medium mb-1">
+                  Internal Review
+                </div>
                 <div className="text-2xl font-bold text-gray-900">
-                  {projects.filter(p =>
-                    ['Internal Review of Audit Report', 'Audit Report Submitted']
-                      .includes(p.projectStatus)
-                  ).length}
+                  {
+                    projects.filter((p) =>
+                      [
+                        "Internal Review of Audit Report",
+                        "Audit Report Submitted",
+                      ].includes(p.projectStatus)
+                    ).length
+                  }
                 </div>
               </div>
 
               <div className="bg-green-50 p-4 rounded-lg">
-                <div className="text-sm text-green-600 font-medium mb-1">Report Submitted</div>
+                <div className="text-sm text-green-600 font-medium mb-1">
+                  Report Submitted
+                </div>
                 <div className="text-2xl font-bold text-gray-900">
-                  {statusStats['Audit Report Submitted'] || 0}
+                  {statusStats["Audit Report Submitted"] || 0}
                 </div>
               </div>
             </div>
+            {/* </div> */}
           </div>
         </div>
 
         {/* Projects Table Section */}
-        <div className="bg-white rounded-xl border overflow-hidden shadow-sm" style={{ borderColor: '#002BFF', borderWidth: '4px' }}>
-          <div className="p-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <h3 className="text-lg font-semibold text-gray-900">
+        <div
+          className="bg-white rounded-xl border overflow-hidden shadow-sm"
+          style={{ borderColor: "#00B5E2", borderWidth: "2px" }}
+        >
+          <div className="p-4 border-b border-[#E6F0F8] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <h3 className="text-lg font-semibold text-[#003366]">
               All Projects ({projects.length})
             </h3>
             <div className="flex items-center gap-3">
               {selectedProjects.length > 0 && (
                 <button
                   onClick={() => setShowBulkUpdate(true)}
-                  className="px-3 py-1.5 bg-blue-500 text-white text-sm rounded-md hover:bg-blue-600 transition"
+                  className="px-3 py-1.5 bg-[#00B5E2] text-white text-sm rounded-md hover:bg-[#0095C2] transition"
                 >
                   Update Status ({selectedProjects.length})
                 </button>
               )}
               <div className="relative w-full sm:w-64">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                <Search
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#336699]"
+                  size={18}
+                />
                 <input
                   type="text"
                   placeholder="Search projects..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 border border-[#E6F0F8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00B5E2] focus:border-transparent"
                   value={searchTerm}
                   onChange={(e) => {
                     setSearchTerm(e.target.value);
@@ -405,52 +461,74 @@ export default function Dashboard() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-[#E6F0F8]">
+              <thead className="bg-[#E6F0F8]">
                 <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-[#336699] uppercase tracking-wider"
+                  >
                     <input
                       type="checkbox"
-                      checked={selectedProjects.length > 0 && selectedProjects.length === currentProjects.length}
+                      checked={
+                        selectedProjects.length > 0 &&
+                        selectedProjects.length === currentProjects.length
+                      }
                       onChange={toggleSelectAll}
-                      className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                      className="h-4 w-4 text-[#00B5E2] rounded border-[#E6F0F8] focus:ring-[#00B5E2]"
                     />
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-[#336699] uppercase tracking-wider"
+                  >
                     Project
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-[#336699] uppercase tracking-wider"
+                  >
                     Status
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-[#336699] uppercase tracking-wider"
+                  >
                     Last Updated
                   </th>
-                  <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-center text-xs font-medium text-[#336699] uppercase tracking-wider"
+                  >
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white divide-y divide-[#E6F0F8]">
                 {currentProjects.length > 0 ? (
                   currentProjects.map((project) => (
-                    <tr key={project._id} className="hover:bg-gray-50">
+                    <tr key={project._id} className="hover:bg-[#F5F9FC]">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <input
                           type="checkbox"
                           checked={selectedProjects.includes(project._id)}
                           onChange={() => toggleProjectSelection(project._id)}
-                          className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                          className="h-4 w-4 text-[#00B5E2] rounded border-[#E6F0F8] focus:ring-[#00B5E2]"
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <Link
-                          href={`project/?projectid=${project._id}&projectDetails=${encodeURIComponent(project.projectName)}`}
+                          href={`project/?projectid=${
+                            project._id
+                          }&projectDetails=${encodeURIComponent(
+                            project.projectName
+                          )}`}
                           className="flex items-center space-x-3 group"
                         >
-                          <div className="bg-gray-100 p-2 rounded-lg">
-                            <Folder className="text-blue-500" size={18} />
+                          <div className="bg-[#E6F0F8] p-2 rounded-lg">
+                            <Folder className="text-[#00B5E2]" size={18} />
                           </div>
-                          <span className="text-sm font-medium text-gray-900 group-hover:text-blue-600">
+                          <span className="text-sm font-medium text-[#003366] group-hover:text-[#00B5E2]">
                             {project.projectName}
                           </span>
                         </Link>
@@ -458,27 +536,29 @@ export default function Dashboard() {
 
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
-                          {project.projectStatus === 'Not Started' && (
+                          {project.projectStatus === "Not Started" && (
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                               Not Started
                             </span>
                           )}
-                          {project.projectStatus === 'Data Received' && (
+                          {project.projectStatus === "Data Received" && (
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                               Data Received
                             </span>
                           )}
-                          {project.projectStatus === 'Audit Completed' && (
+                          {project.projectStatus === "Audit Completed" && (
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
                               Audit Completed
                             </span>
                           )}
-                          {project.projectStatus === 'Internal Review of Audit Report' && (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          {project.projectStatus ===
+                            "Internal Review of Audit Report" && (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#E6F0F8] text-[#003366]">
                               Internal Review
                             </span>
                           )}
-                          {project.projectStatus === 'Audit Report Submitted' && (
+                          {project.projectStatus ===
+                            "Audit Report Submitted" && (
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                               Report Submitted
                             </span>
@@ -490,7 +570,7 @@ export default function Dashboard() {
                                 e.preventDefault();
                                 setProjectToEdit(project);
                               }}
-                              className="text-gray-500 hover:text-blue-600 p-1 rounded-full hover:bg-blue-50"
+                              className="text-[#336699] hover:text-[#00B5E2] p-1 rounded-full hover:bg-[#E6F0F8]"
                               title="Edit status"
                             >
                               <Edit size={16} />
@@ -499,7 +579,7 @@ export default function Dashboard() {
                         </div>
                       </td>
 
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-[#336699]">
                         <div className="flex items-center">
                           <Clock size={14} className="mr-1 opacity-70" />
                           {new Date(project.updatedAt).toLocaleDateString()}
@@ -521,8 +601,12 @@ export default function Dashboard() {
                           )}
 
                           <Link
-                            href={`project/?projectid=${project._id}&projectDetails=${encodeURIComponent(project.projectName)}`}
-                            className="text-blue-500 hover:text-blue-700 p-1 rounded-full hover:bg-blue-50"
+                            href={`project/?projectid=${
+                              project._id
+                            }&projectDetails=${encodeURIComponent(
+                              project.projectName
+                            )}`}
+                            className="text-[#00B5E2] hover:text-[#003366] p-1 rounded-full hover:bg-[#E6F0F8]"
                             title="View project"
                           >
                             <ArrowRight size={18} />
@@ -534,8 +618,8 @@ export default function Dashboard() {
                 ) : (
                   <tr>
                     <td colSpan="5" className="px-6 py-8 text-center">
-                      <div className="flex flex-col items-center justify-center text-gray-500">
-                        <FolderOpen className="text-gray-300 mb-2" size={24} />
+                      <div className="flex flex-col items-center justify-center text-[#336699]">
+                        <FolderOpen className="text-[#E6F0F8] mb-2" size={24} />
                         No projects found
                       </div>
                     </td>
@@ -547,35 +631,55 @@ export default function Dashboard() {
 
           {/* Pagination */}
           {filteredProjects.length > projectsPerPage && (
-            <div className="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="text-sm text-gray-500">
-                Showing <span className="font-medium">{indexOfFirstProject + 1}</span> to{' '}
+            <div className="px-6 py-4 border-t border-[#E6F0F8] flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="text-sm text-[#336699]">
+                Showing{" "}
+                <span className="font-medium">{indexOfFirstProject + 1}</span>{" "}
+                to{" "}
                 <span className="font-medium">
                   {Math.min(indexOfLastProject, filteredProjects.length)}
-                </span>{' '}
-                of <span className="font-medium">{filteredProjects.length}</span> projects
+                </span>{" "}
+                of{" "}
+                <span className="font-medium">{filteredProjects.length}</span>{" "}
+                projects
               </div>
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => paginate(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
-                  className={`px-3 py-1 rounded-md ${currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+                  className={`px-3 py-1 rounded-md ${
+                    currentPage === 1
+                      ? "bg-[#E6F0F8] text-[#336699] cursor-not-allowed"
+                      : "bg-[#E6F0F8] text-[#003366] hover:bg-[#D0E0F0]"
+                  }`}
                 >
                   Previous
                 </button>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((number) => (
-                  <button
-                    key={number}
-                    onClick={() => paginate(number)}
-                    className={`px-3 py-1 rounded-md min-w-[36px] ${currentPage === number ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
-                  >
-                    {number}
-                  </button>
-                ))}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (number) => (
+                    <button
+                      key={number}
+                      onClick={() => paginate(number)}
+                      className={`px-3 py-1 rounded-md min-w-[36px] ${
+                        currentPage === number
+                          ? "bg-[#00B5E2] text-white"
+                          : "bg-[#E6F0F8] text-[#003366] hover:bg-[#D0E0F0]"
+                      }`}
+                    >
+                      {number}
+                    </button>
+                  )
+                )}
                 <button
-                  onClick={() => paginate(Math.min(totalPages, currentPage + 1))}
+                  onClick={() =>
+                    paginate(Math.min(totalPages, currentPage + 1))
+                  }
                   disabled={currentPage === totalPages}
-                  className={`px-3 py-1 rounded-md ${currentPage === totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+                  className={`px-3 py-1 rounded-md ${
+                    currentPage === totalPages
+                      ? "bg-[#E6F0F8] text-[#336699] cursor-not-allowed"
+                      : "bg-[#E6F0F8] text-[#003366] hover:bg-[#D0E0F0]"
+                  }`}
                 >
                   Next
                 </button>
@@ -588,34 +692,44 @@ export default function Dashboard() {
       {/* Create Project Popup */}
       {showCreatePopup && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl border border-gray-200 shadow-xl p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Create New Project</h2>
-            <form onSubmit={async (e) => {
-              e.preventDefault();
-              const name = e.target.projectName.value;
+          <div className="bg-white rounded-xl border border-[#E6F0F8] shadow-xl p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold text-[#003366] mb-4">
+              Create New Project
+            </h2>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const name = e.target.projectName.value;
 
-              if (name.trim()) {
-                try {
-                  await axios.post('/api/routes/project?action=createProject', {
-                    projectName: name,
-                    projectStatus: 'Not Started'
-                  });
-                  setShowCreatePopup(false);
-                  fetchProjects();
-                } catch (error) {
-                  console.error('Error creating project:', error);
-                  alert('Failed to create project. Please try again.');
+                if (name.trim()) {
+                  try {
+                    await axios.post(
+                      "/api/routes/project?action=createProject",
+                      {
+                        projectName: name,
+                        projectStatus: "Not Started",
+                      }
+                    );
+                    setShowCreatePopup(false);
+                    fetchProjects();
+                  } catch (error) {
+                    console.error("Error creating project:", error);
+                    alert("Failed to create project. Please try again.");
+                  }
                 }
-              }
-            }}>
+              }}
+            >
               <div className="mb-4">
-                <label htmlFor="projectName" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="projectName"
+                  className="block text-sm font-medium text-[#336699] mb-1"
+                >
                   Project Name *
                 </label>
                 <input
                   type="text"
                   id="projectName"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-[#E6F0F8] rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B5E2]"
                   placeholder="Enter project name"
                   required
                   autoFocus
@@ -626,13 +740,13 @@ export default function Dashboard() {
                 <button
                   type="button"
                   onClick={() => setShowCreatePopup(false)}
-                  className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition"
+                  className="px-4 py-2 text-[#336699] hover:bg-[#E6F0F8] rounded-lg transition"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 rounded-lg transition"
+                  className="px-4 py-2 bg-gradient-to-r from-[#00B5E2] to-[#00B5E2] text-white hover:from-[#0095C2] hover:to-[#0095C2] rounded-lg transition"
                 >
                   Create Project
                 </button>
@@ -645,17 +759,18 @@ export default function Dashboard() {
       {/* Delete Confirmation */}
       {projectToDelete && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl border border-gray-200 shadow-xl p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold text-gray-900 mb-2">
+          <div className="bg-white rounded-xl border border-[#E6F0F8] shadow-xl p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold text-[#003366] mb-2">
               Delete Project
             </h2>
-            <p className="text-gray-600 mb-6">
-              Are you sure you want to delete "{projectToDelete.projectName}"? This action cannot be undone.
+            <p className="text-[#336699] mb-6">
+              Are you sure you want to delete "{projectToDelete.projectName}"?
+              This action cannot be undone.
             </p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setProjectToDelete(null)}
-                className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition"
+                className="px-4 py-2 text-[#336699] hover:bg-[#E6F0F8] rounded-lg transition"
               >
                 Cancel
               </button>
@@ -673,24 +788,49 @@ export default function Dashboard() {
       {/* Edit Status Modal */}
       {projectToEdit && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl border border-gray-200 shadow-xl p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">
+          <div className="bg-white rounded-xl border border-[#E6F0F8] shadow-xl p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold text-[#003366] mb-4">
               Update Project Status
             </h2>
             <div className="space-y-3 mb-6">
-              {['Not Started', 'Data Received', 'Audit Completed', 'Internal Review of Audit Report', 'Audit Report Submitted'].map((status) => (
+              {[
+                "Not Started",
+                "Data Received",
+                "Audit Completed",
+                "Internal Review of Audit Report",
+                "Audit Report Submitted",
+              ].map((status) => (
                 <div
                   key={status}
-                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${projectToEdit.projectStatus === status ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:bg-gray-50'}`}
-                  onClick={() => setProjectToEdit({ ...projectToEdit, projectStatus: status })}
+                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                    projectToEdit.projectStatus === status
+                      ? "border-[#00B5E2] bg-[#E6F0F8]"
+                      : "border-[#E6F0F8] hover:bg-[#F5F9FC]"
+                  }`}
+                  onClick={() =>
+                    setProjectToEdit({
+                      ...projectToEdit,
+                      projectStatus: status,
+                    })
+                  }
                 >
                   <div className="flex items-center gap-3">
-                    {status === 'Not Started' && <Clock className="text-gray-500" size={18} />}
-                    {status === 'Data Received' && <Folder className="text-purple-500" size={18} />}
-                    {status === 'Audit Completed' && <CheckCircle className="text-amber-500" size={18} />}
-                    {status === 'Internal Review of Audit Report' && <BarChart2 className="text-blue-500" size={18} />}
-                    {status === 'Audit Report Submitted' && <Archive className="text-green-500" size={18} />}
-                    <span className="font-medium">{status}</span>
+                    {status === "Not Started" && (
+                      <Clock className="text-[#336699]" size={18} />
+                    )}
+                    {status === "Data Received" && (
+                      <Folder className="text-purple-500" size={18} />
+                    )}
+                    {status === "Audit Completed" && (
+                      <CheckCircle className="text-amber-500" size={18} />
+                    )}
+                    {status === "Internal Review of Audit Report" && (
+                      <BarChart2 className="text-[#00B5E2]" size={18} />
+                    )}
+                    {status === "Audit Report Submitted" && (
+                      <Archive className="text-green-500" size={18} />
+                    )}
+                    <span className="font-medium text-[#003366]">{status}</span>
                   </div>
                 </div>
               ))}
@@ -698,26 +838,29 @@ export default function Dashboard() {
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setProjectToEdit(null)}
-                className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition"
+                className="px-4 py-2 text-[#336699] hover:bg-[#E6F0F8] rounded-lg transition"
               >
                 Cancel
               </button>
               <button
                 onClick={async () => {
                   try {
-                    await axios.post('/api/routes/project?action=updateProjectStatus', {
-                      projectId: projectToEdit._id,
-                      status: projectToEdit.projectStatus
-                    });
+                    await axios.post(
+                      "/api/routes/project?action=updateProjectStatus",
+                      {
+                        projectId: projectToEdit._id,
+                        status: projectToEdit.projectStatus,
+                      }
+                    );
                     fetchProjects();
                     fetchAllChecklistItems();
                     setProjectToEdit(null);
                   } catch (error) {
-                    console.error('Error updating project status:', error);
-                    alert('Failed to update project status');
+                    console.error("Error updating project status:", error);
+                    alert("Failed to update project status");
                   }
                 }}
-                className="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 rounded-lg transition"
+                className="px-4 py-2 bg-gradient-to-r from-[#00B5E2] to-[#00B5E2] text-white hover:from-[#0095C2] hover:to-[#0095C2] rounded-lg transition"
               >
                 Update Status
               </button>
@@ -729,24 +872,44 @@ export default function Dashboard() {
       {/* Bulk Status Update Modal */}
       {showBulkUpdate && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl border border-gray-200 shadow-xl p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">
+          <div className="bg-white rounded-xl border border-[#E6F0F8] shadow-xl p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold text-[#003366] mb-4">
               Update Status for {selectedProjects.length} Projects
             </h2>
             <div className="space-y-3 mb-6">
-              {['Not Started', 'Data Received', 'Audit Completed', 'Internal Review of Audit Report', 'Audit Report Submitted'].map((status) => (
+              {[
+                "Not Started",
+                "Data Received",
+                "Audit Completed",
+                "Internal Review of Audit Report",
+                "Audit Report Submitted",
+              ].map((status) => (
                 <div
                   key={status}
-                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${bulkStatus === status ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:bg-gray-50'}`}
+                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                    bulkStatus === status
+                      ? "border-[#00B5E2] bg-[#E6F0F8]"
+                      : "border-[#E6F0F8] hover:bg-[#F5F9FC]"
+                  }`}
                   onClick={() => setBulkStatus(status)}
                 >
                   <div className="flex items-center gap-3">
-                    {status === 'Not Started' && <Clock className="text-gray-500" size={18} />}
-                    {status === 'Data Received' && <Folder className="text-purple-500" size={18} />}
-                    {status === 'Audit Completed' && <CheckCircle className="text-amber-500" size={18} />}
-                    {status === 'Internal Review of Audit Report' && <BarChart2 className="text-blue-500" size={18} />}
-                    {status === 'Audit Report Submitted' && <Archive className="text-green-500" size={18} />}
-                    <span className="font-medium">{status}</span>
+                    {status === "Not Started" && (
+                      <Clock className="text-[#336699]" size={18} />
+                    )}
+                    {status === "Data Received" && (
+                      <Folder className="text-purple-500" size={18} />
+                    )}
+                    {status === "Audit Completed" && (
+                      <CheckCircle className="text-amber-500" size={18} />
+                    )}
+                    {status === "Internal Review of Audit Report" && (
+                      <BarChart2 className="text-[#00B5E2]" size={18} />
+                    )}
+                    {status === "Audit Report Submitted" && (
+                      <Archive className="text-green-500" size={18} />
+                    )}
+                    <span className="font-medium text-[#003366]">{status}</span>
                   </div>
                 </div>
               ))}
@@ -754,13 +917,13 @@ export default function Dashboard() {
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowBulkUpdate(false)}
-                className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition"
+                className="px-4 py-2 text-[#336699] hover:bg-[#E6F0F8] rounded-lg transition"
               >
                 Cancel
               </button>
               <button
                 onClick={handleBulkStatusUpdate}
-                className="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 rounded-lg transition"
+                className="px-4 py-2 bg-gradient-to-r from-[#00B5E2] to-[#00B5E2] text-white hover:from-[#0095C2] hover:to-[#0095C2] rounded-lg transition"
               >
                 Update All
               </button>
@@ -770,4 +933,4 @@ export default function Dashboard() {
       )}
     </div>
   );
-};
+}

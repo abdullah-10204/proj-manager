@@ -4,6 +4,7 @@ import Folders from "@/components/Folders";
 import AskQuestion from "@/components/AskQuestion";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { ArrowRight, Folder, Clock } from "lucide-react";
 
 // Move the main content to a separate component
 const ProjectContent = () => {
@@ -44,21 +45,41 @@ const ProjectContent = () => {
         fetchFolders();
     }, [projectId]);
 
-    if (loading) return <div>Loading...</div>;
-    if (error) return <div>Error: {error}</div>;
+    if (loading) return (
+        <div className="min-h-screen bg-[#E6F0F8] p-6 flex items-center justify-center">
+            <div className="text-[#003366]">Loading project data...</div>
+        </div>
+    );
+    
+    if (error) return (
+        <div className="min-h-screen bg-[#E6F0F8] p-6 flex items-center justify-center">
+            <div className="text-red-500">Error: {error}</div>
+        </div>
+    );
 
     return (
-        <div className="min-h-screen bg-gray-50 p-6">
+        <div className="min-h-screen bg-[#E6F0F8] p-6">
             <div className="max-w-7xl mx-auto">
-                <div className="flex justify-between items-center mb-8">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 p-4 bg-white rounded-xl border shadow-sm" 
+                     style={{ borderColor: '#00B5E2', borderWidth: '2px' }}>
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900">{projectName}</h1>
+                        <h1 className="text-2xl sm:text-3xl font-bold text-[#003366]">{projectName}</h1>
+                        <div className="flex items-center mt-2 text-sm text-[#336699]">
+                            <Clock size={14} className="mr-1 opacity-70" />
+                            Last updated: {new Date().toLocaleDateString()}
+                        </div>
                     </div>
-                    <Link href={`/view-checklist/?projectId=${projectId}`} className="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 rounded-lg transition flex items-center gap-2 shadow-md hover:shadow-lg">
-                        View Checklist
+                    <Link 
+                        href={`/view-checklist/?projectId=${projectId}`} 
+                        className="px-4 py-2 bg-gradient-to-r from-[#00B5E2] to-[#00B5E2] text-white hover:from-[#0095C2] hover:to-[#0095C2] rounded-lg transition flex items-center gap-2 shadow-md hover:shadow-lg"
+                    >
+                        View Checklist <ArrowRight size={18} />
                     </Link>
                 </div>
-                <Folders folders={folders} projectId={projectId} />
+                
+                {/* <div className="bg-white rounded-xl border shadow-sm p-6" style={{ borderColor: '#00B5E2', borderWidth: '2px' }}> */}
+                    <Folders folders={folders} projectId={projectId} />
+                {/* </div> */}
             </div>
         </div>
     );
@@ -67,7 +88,11 @@ const ProjectContent = () => {
 // Main page component with Suspense boundary
 export default function Page() {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={
+            <div className="min-h-screen bg-[#E6F0F8] p-6 flex items-center justify-center">
+                <div className="text-[#003366]">Loading...</div>
+            </div>
+        }>
             <ProjectContent />
         </Suspense>
     );
