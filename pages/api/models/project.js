@@ -47,7 +47,11 @@ const ProjectSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-
+    projectStatus: {
+        type: String,
+        required: false,
+        default:"Not Started"
+    },
     folders: [FolderSchema],
     checklist: [ChecklistItemSchema]
 }, { timestamps: true });

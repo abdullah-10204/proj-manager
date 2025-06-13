@@ -18,6 +18,46 @@ export const createProject = async (req, res) => {
   }
 };
 
+export const updateProjectStatus = async (req, res) => {
+  try {
+    const { projectId, status } = req.body;
+
+    if (!projectId || !status) {
+      return res.status(400).json({
+        success: false,
+        message: "Both projectId and status are required."
+      });
+    }
+
+    const updatedProject = await Project.findByIdAndUpdate(
+      projectId,
+      { projectStatus: status },
+      { new: true }
+    );
+
+    if (!updatedProject) {
+      return res.status(404).json({
+        success: false,
+        message: "Project not found."
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Project status updated successfully.",
+      data: updatedProject
+    });
+
+  } catch (error) {
+    console.error("Error updating project status:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error."
+    });
+  }
+};
+
+
 export const getProjects = async (req, res) => {
   try {
     await connectToDatabase();

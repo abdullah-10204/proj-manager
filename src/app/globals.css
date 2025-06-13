@@ -118,3 +118,13 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Add to your global CSS file */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 116, 139, 0.4); /* Tailwind's slate-500 with opacity */
+  border-radius: 4px;
+}

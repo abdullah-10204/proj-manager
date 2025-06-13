@@ -122,7 +122,6 @@ const ChecklistContent = () => {
                 <p className="text-gray-600">Review and manage compliance requirements for your project</p>
             </div>
 
-            {/* AI Assistant Section */}
             <div className="bg-white rounded-xl shadow-md overflow-hidden mb-6 border border-blue-100">
                 <div className="p-5 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
                     <div className="flex items-center">
