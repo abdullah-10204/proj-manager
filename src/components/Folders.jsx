@@ -168,7 +168,7 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
         : `projects/${projectId}/${fileName}`;
 
       const { data, error } = await supabase.storage
-        .from('new-project')
+        .from('proj-manager')
         .upload(fullPath, file);
 
       if (error) throw error;
@@ -411,7 +411,7 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
                           ) : (
                             <DropdownMenuItem
                               onClick={() => window.open(
-                                `https://rixdrbokebnvidwyzvzo.supabase.co/storage/v1/object/public/new-project/${item.url}`,
+                                `https://rixdrbokebnvidwyzvzo.supabase.co/storage/v1/object/public/proj-manager/${item.url}`,
                                 '_blank'
                               )}
                             >
