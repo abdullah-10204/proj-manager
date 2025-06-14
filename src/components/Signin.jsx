@@ -3,7 +3,7 @@ import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Mail, Lock, Eye, EyeOff, AlertCircle } from "lucide-react";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 
 function SigninUser() {
   const router = useRouter();
@@ -56,12 +56,28 @@ function SigninUser() {
       expires.setDate(expires.getDate() + 7);
 
       if (email === "adminuser123@gmail.com" && password === "admin123") {
-        Cookies.set('Role', 'Admin', { expires, secure: true, sameSite: 'strict' });
-        Cookies.set('isAuthenticated', 'true', { expires, secure: true, sameSite: 'strict' });
+        Cookies.set("Role", "Admin", {
+          expires,
+          secure: true,
+          sameSite: "strict",
+        });
+        Cookies.set("isAuthenticated", "true", {
+          expires,
+          secure: true,
+          sameSite: "strict",
+        });
         router.push("/dashboard");
       } else if (email === "user123@gmail.com" && password === "user123") {
-        Cookies.set('Role', 'User', { expires, secure: true, sameSite: 'strict' });
-        Cookies.set('isAuthenticated', 'true', { expires, secure: true, sameSite: 'strict' });
+        Cookies.set("Role", "User", {
+          expires,
+          secure: true,
+          sameSite: "strict",
+        });
+        Cookies.set("isAuthenticated", "true", {
+          expires,
+          secure: true,
+          sameSite: "strict",
+        });
         router.push("/dashboard");
       } else {
         setErrors({ submit: "Invalid email or password" });
@@ -73,19 +89,18 @@ function SigninUser() {
     }
   };
 
-
   return (
     <div className="flex h-auto min-h-screen w-full">
       <div className="md:flex w-[40%] h-auto min-h-screen relative hidden items-start justify-center">
         <Image
-          src="/signin.jpg"
+          src="/signin.png"
           alt="signin"
           fill
-          className="object-cover overflow-clip"
+          className="overflow-clip h-full w-full"
         />
       </div>
-      <div className="w-full md:w-[60%] h-auto min-h-screen bg-[var(--bg-color)] flex items-center justify-center md:p-5 p-2">
-        <div className="w-full max-w-[550px] bg-white rounded-[20px] md:px-8 px-2 py-9 flex flex-col gap-[20px] my-8">
+      <div className="w-full md:w-[60%] h-auto min-h-screen bg-[var(--bg-color)] flex items-center justify-center md:p-5 p-2 ">
+        <div className="w-full max-w-[550px] bg-white rounded-[20px] md:px-8 px-2 py-9 flex flex-col gap-[20px] my-8 border-[#003366] border-[1px]">
           <div>
             <p className="text-4xl leading-[50px] font-bold">
               Sign in to your dashboard
@@ -117,16 +132,18 @@ function SigninUser() {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="Enter your business email"
-                  className={`w-full border ${submitAttempted && errors.email
-                    ? "border-red-500"
-                    : "border-[var(--border-color)]"
-                    } rounded-[58px] p-4 pl-12 pr-12 focus:outline-none focus:border-[var(--primary-color)] placeholder:text-gray-400 placeholder:text-[16px] placeholder:leading-6`}
+                  className={`w-full border ${
+                    submitAttempted && errors.email
+                      ? "border-red-500"
+                      : "border-[var(--border-color)]"
+                  } rounded-[58px] p-4 pl-12 pr-12 focus:outline-none focus:border-[var(--primary-color)] placeholder:text-gray-400 placeholder:text-[16px] placeholder:leading-6`}
                 />
                 <Mail
-                  className={`absolute left-4 top-1/2 transform -translate-y-1/2 ${submitAttempted && errors.email
-                    ? "text-red-500"
-                    : "text-gray-600"
-                    }`}
+                  className={`absolute left-4 top-1/2 transform -translate-y-1/2 ${
+                    submitAttempted && errors.email
+                      ? "text-red-500"
+                      : "text-gray-600"
+                  }`}
                   size={20}
                 />
                 {submitAttempted && errors.email && (
@@ -156,16 +173,18 @@ function SigninUser() {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Enter your password"
-                  className={`w-full border ${submitAttempted && errors.password
-                    ? "border-red-500"
-                    : "border-[var(--border-color)]"
-                    } rounded-[58px] p-4 pl-12 pr-12 focus:outline-none focus:border-[var(--primary-color)] placeholder:text-gray-400 placeholder:text-[16px] placeholder:leading-6`}
+                  className={`w-full border ${
+                    submitAttempted && errors.password
+                      ? "border-red-500"
+                      : "border-[var(--border-color)]"
+                  } rounded-[58px] p-4 pl-12 pr-12 focus:outline-none focus:border-[var(--primary-color)] placeholder:text-gray-400 placeholder:text-[16px] placeholder:leading-6`}
                 />
                 <Lock
-                  className={`absolute left-4 top-1/2 transform -translate-y-1/2 ${submitAttempted && errors.password
-                    ? "text-red-500"
-                    : "text-gray-600"
-                    }`}
+                  className={`absolute left-4 top-1/2 transform -translate-y-1/2 ${
+                    submitAttempted && errors.password
+                      ? "text-red-500"
+                      : "text-gray-600"
+                  }`}
                   size={20}
                 />
                 <button
@@ -184,10 +203,11 @@ function SigninUser() {
             <button
               type="submit"
               disabled={loading}
-              className={`mt-4 w-full py-4 px-6 rounded-[58px] text-white font-semibold cursor-pointer flex items-center justify-center gap-2 ${loading
-                ? "bg-blue-400 cursor-not-allowed"
-                : "bg-[#003366]  hover:bg-[#003366]"
-                }`}
+              className={`mt-4 w-full py-4 px-6 rounded-[58px] text-white font-semibold cursor-pointer flex items-center justify-center gap-2 ${
+                loading
+                  ? "bg-blue-400 cursor-not-allowed"
+                  : "bg-[#003366]  hover:bg-[#003366]"
+              }`}
             >
               {loading ? (
                 <>
