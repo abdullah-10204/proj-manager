@@ -3,7 +3,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import axios from 'axios';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-import { ChevronLeft, ChevronDown, Edit, Check, Lightning, Info, MessageSquare, AlertCircle } from 'lucide-react';
+import { ChevronLeft, ChevronDown, Edit, Check, Info, MessageSquare, AlertCircle } from 'lucide-react';
 
 const ChecklistContent = () => {
     const [checklistItems, setChecklistItems] = useState([]);
@@ -99,7 +99,7 @@ const ChecklistContent = () => {
 
     if (error) return (
         <div className="text-center py-8 text-red-500 bg-[#003366] min-h-screen flex items-center justify-center">
-            <div className="bg-white p-6 rounded-lg border border-[#003366] shadow-lg max-w-md">
+            <div className="bg-white p-6 rounded-lg border-4 border-[#0000FF] shadow-lg max-w-md">
                 <p className="text-xl font-medium text-[#003366]">Error loading checklist</p>
                 <p className="mt-2 text-[#003366]">{error}</p>
                 <button 
@@ -130,7 +130,8 @@ const ChecklistContent = () => {
                     <p className="text-[#A0C4E0]">Review and manage compliance requirements for your project</p>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8 border-2 border-[#003366]">
+                {/* AI Compliance Assistant Block */}
+                <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8 border-4 border-[#0000FF]">
                     <div className="p-5 bg-[#003366]">
                         <div className="flex items-center">
                             <div className="p-2 rounded-full bg-[#0000C0] bg-opacity-20 mr-3">
@@ -192,7 +193,8 @@ const ChecklistContent = () => {
                     </div>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8 border-2 border-[#003366]">
+                {/* Checklist Summary Block */}
+                <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8 border-4 border-[#0000FF]">
                     <div className="p-5 bg-[#003366]">
                         <div className="flex items-center">
                             <div className="p-2 rounded-full bg-[#0000C0] bg-opacity-20 mr-3">
@@ -216,9 +218,10 @@ const ChecklistContent = () => {
                     </div>
                 </div>
 
+                {/* Checklist Items */}
                 <div className="space-y-4">
                     {checklistItems.map((item) => (
-                        <div key={item._id} className="bg-white rounded-lg shadow-sm overflow-hidden border-2 border-[#003366] hover:border-[#0000C0] transition-colors">
+                        <div key={item._id} className="bg-white rounded-lg shadow-sm overflow-hidden border-4 border-[#0000FF] hover:border-[#0000C0] transition-colors">
                             <div className="p-5">
                                 <div 
                                     className="flex justify-between items-start cursor-pointer group"

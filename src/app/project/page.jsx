@@ -60,7 +60,8 @@ const ProjectContent = () => {
     return (
         <div className="min-h-screen bg-[#003366] p-6">
             <div className="max-w-7xl mx-auto">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 p-4 bg-white rounded-xl border border-[#003366] shadow-sm">
+                {/* First main block with thick blue border */}
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 p-4 bg-white rounded-xl border-4 border-[#0000FF] shadow-sm">
                     <div>
                         <h1 className="text-2xl sm:text-3xl font-bold text-[#003366]">{projectName}</h1>
                         <div className="flex items-center mt-2 text-sm text-[#0000C0]">
@@ -76,7 +77,10 @@ const ProjectContent = () => {
                     </Link>
                 </div>
                 
-                <Folders folders={folders} projectId={projectId} />
+                {/* Second main block with thick blue border */}
+                <div className="border-4 border-[#0000FF] rounded-xl p-4 bg-white">
+                    <Folders folders={folders} projectId={projectId} />
+                </div>
             </div>
         </div>
     );
