@@ -50,7 +50,7 @@ const ProgressChart = ({ projectsDetail }) => {
   projectData.sort((a, b) => b.statusValue - a.statusValue);
 
   return (
-    <div className="bg-white rounded-xl p-6 border shadow-sm border-[#003366]">
+    <div className="bg-white rounded-xl p-6 border-5 shadow-sm border-[#0000FF]">
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-3">
           <TrendingUp className="text-[#0000C0]" size={20} />
@@ -71,12 +71,12 @@ const ProgressChart = ({ projectsDetail }) => {
               item.status === "Audit Report Submitted"
                 ? "bg-gradient-to-r from-green-500 to-green-400"
                 : item.status === "Internal Review of Audit Report"
-                ? "bg-gradient-to-r from-[#0000C0] to-[#0000C0]"
-                : item.status === "Audit Completed"
-                ? "bg-gradient-to-r from-amber-500 to-amber-400"
-                : item.status === "Data Received"
-                ? "bg-gradient-to-r from-purple-500 to-purple-400"
-                : "bg-gradient-to-r from-gray-500 to-gray-400";
+                  ? "bg-gradient-to-r from-[#0000C0] to-[#0000C0]"
+                  : item.status === "Audit Completed"
+                    ? "bg-gradient-to-r from-amber-500 to-amber-400"
+                    : item.status === "Data Received"
+                      ? "bg-gradient-to-r from-purple-500 to-purple-400"
+                      : "bg-gradient-to-r from-gray-500 to-gray-400";
 
             return (
               <div key={item.id} className="group">
@@ -288,10 +288,10 @@ export default function Dashboard() {
     <div className="min-h-screen p-4 sm:p-6 bg-[#003366]">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 rounded-xl p-4 bg-[#003366]">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 rounded-xl p-4 bg-[#003366] border-5 border-[#0000FF]">
           <div className="flex items-center gap-4">
             <div className="flex items-center">
-             <Image src="/image1.png" alt="Description" width={250} height={250} />
+              <Image src="/image1.png" alt="Description" width={250} height={250} />
             </div>
           </div>
 
@@ -316,10 +316,11 @@ export default function Dashboard() {
           </div>
         </div>
 
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ProgressChart projectsDetail={projectsDetail} />
 
-          <div className="bg-white rounded-xl p-6 border shadow-sm border-[#003366]">
+          <div className="bg-white rounded-xl p-6 border-5 shadow-sm border-[#0000FF]">
             <div className="flex items-center gap-3 mb-6">
               <Activity className="text-[#0000C0]" size={20} />
               <h2 className="text-xl font-semibold text-[#003366]">
@@ -410,7 +411,7 @@ export default function Dashboard() {
         </div>
 
         {/* Projects Table Section */}
-        <div className="bg-white rounded-xl border overflow-hidden shadow-sm border-[#003366]">
+        <div className="bg-white rounded-xl border-5 overflow-hidden shadow-sm border-[#0000FF]">
           <div className="p-4 border-b border-[#E6F0F8] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <h3 className="text-lg font-semibold text-[#003366]">
               All Projects ({projects.length})
@@ -501,11 +502,10 @@ export default function Dashboard() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <Link
-                          href={`project/?projectid=${
-                            project._id
-                          }&projectDetails=${encodeURIComponent(
-                            project.projectName
-                          )}`}
+                          href={`project/?projectid=${project._id
+                            }&projectDetails=${encodeURIComponent(
+                              project.projectName
+                            )}`}
                           className="flex items-center space-x-3 group"
                         >
                           <div className="bg-[#E6F0F8] p-2 rounded-lg">
@@ -536,16 +536,16 @@ export default function Dashboard() {
                           )}
                           {project.projectStatus ===
                             "Internal Review of Audit Report" && (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#E6F0F8] text-[#003366]">
-                              Internal Review
-                            </span>
-                          )}
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#E6F0F8] text-[#003366]">
+                                Internal Review
+                              </span>
+                            )}
                           {project.projectStatus ===
                             "Audit Report Submitted" && (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                              Report Submitted
-                            </span>
-                          )}
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Report Submitted
+                              </span>
+                            )}
 
                           {role === "Admin" && (
                             <button
@@ -584,11 +584,10 @@ export default function Dashboard() {
                           )}
 
                           <Link
-                            href={`project/?projectid=${
-                              project._id
-                            }&projectDetails=${encodeURIComponent(
-                              project.projectName
-                            )}`}
+                            href={`project/?projectid=${project._id
+                              }&projectDetails=${encodeURIComponent(
+                                project.projectName
+                              )}`}
                             className="text-[#0000C0] hover:text-[#003366] p-1 rounded-full hover:bg-[#E6F0F8]"
                             title="View project"
                           >
@@ -630,11 +629,10 @@ export default function Dashboard() {
                 <button
                   onClick={() => paginate(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
-                  className={`px-3 py-1 rounded-md ${
-                    currentPage === 1
+                  className={`px-3 py-1 rounded-md ${currentPage === 1
                       ? "bg-[#E6F0F8] text-[#003366] cursor-not-allowed"
                       : "bg-[#E6F0F8] text-[#003366] hover:bg-[#D0E0F0]"
-                  }`}
+                    }`}
                 >
                   Previous
                 </button>
@@ -643,11 +641,10 @@ export default function Dashboard() {
                     <button
                       key={number}
                       onClick={() => paginate(number)}
-                      className={`px-3 py-1 rounded-md min-w-[36px] ${
-                        currentPage === number
+                      className={`px-3 py-1 rounded-md min-w-[36px] ${currentPage === number
                           ? "bg-[#0000C0] text-white"
                           : "bg-[#E6F0F8] text-[#003366] hover:bg-[#D0E0F0]"
-                      }`}
+                        }`}
                     >
                       {number}
                     </button>
@@ -658,11 +655,10 @@ export default function Dashboard() {
                     paginate(Math.min(totalPages, currentPage + 1))
                   }
                   disabled={currentPage === totalPages}
-                  className={`px-3 py-1 rounded-md ${
-                    currentPage === totalPages
+                  className={`px-3 py-1 rounded-md ${currentPage === totalPages
                       ? "bg-[#E6F0F8] text-[#003366] cursor-not-allowed"
                       : "bg-[#E6F0F8] text-[#003366] hover:bg-[#D0E0F0]"
-                  }`}
+                    }`}
                 >
                   Next
                 </button>
@@ -785,11 +781,10 @@ export default function Dashboard() {
               ].map((status) => (
                 <div
                   key={status}
-                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                    projectToEdit.projectStatus === status
+                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${projectToEdit.projectStatus === status
                       ? "border-[#0000C0] bg-[#E6F0F8]"
                       : "border-[#E6F0F8] hover:bg-[#F5F9FC]"
-                  }`}
+                    }`}
                   onClick={() =>
                     setProjectToEdit({
                       ...projectToEdit,
@@ -869,11 +864,10 @@ export default function Dashboard() {
               ].map((status) => (
                 <div
                   key={status}
-                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                    bulkStatus === status
+                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${bulkStatus === status
                       ? "border-[#0000C0] bg-[#E6F0F8]"
                       : "border-[#E6F0F8] hover:bg-[#F5F9FC]"
-                  }`}
+                    }`}
                   onClick={() => setBulkStatus(status)}
                 >
                   <div className="flex items-center gap-3">
