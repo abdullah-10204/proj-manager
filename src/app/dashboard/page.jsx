@@ -26,7 +26,7 @@ import Image from "next/image";
 
 const ProgressChart = ({ projectsDetail }) => {
   const statusOrder = {
-    "Not Started": 0,
+    "Mobilised": 0,
     "Data Received": 1,
     "Audit Completed": 2,
     "Internal Review of Audit Report": 3,
@@ -34,7 +34,7 @@ const ProgressChart = ({ projectsDetail }) => {
   };
 
   const projectData = projectsDetail.map((project) => {
-    const status = project.projectStatus || "Not Started";
+    const status = project.projectStatus || "Mobilised";
     const statusValue = statusOrder[status] || 0;
     const percentage = Math.round((statusValue / 4) * 100);
 
@@ -71,17 +71,17 @@ const ProgressChart = ({ projectsDetail }) => {
               item.status === "Audit Report Submitted"
                 ? "bg-gradient-to-r from-green-500 to-green-400"
                 : item.status === "Internal Review of Audit Report"
-                  ? "bg-gradient-to-r from-[#0000C0] to-[#0000C0]"
-                  : item.status === "Audit Completed"
-                    ? "bg-gradient-to-r from-amber-500 to-amber-400"
-                    : item.status === "Data Received"
-                      ? "bg-gradient-to-r from-purple-500 to-purple-400"
-                      : "bg-gradient-to-r from-gray-500 to-gray-400";
+                ? "bg-gradient-to-r from-[#0000C0] to-[#0000C0]"
+                : item.status === "Audit Completed"
+                ? "bg-gradient-to-r from-amber-500 to-amber-400"
+                : item.status === "Data Received"
+                ? "bg-gradient-to-r from-purple-500 to-purple-400"
+                : "bg-gradient-to-r from-gray-500 to-gray-400";
 
             return (
               <div key={item.id} className="group">
                 <div className="flex items-center justify-between mb-1">
-                  <div className="text-sm font-medium text-[#003366] truncate max-w-[180px]">
+                  <div className="text-sm font-medium text-[#003366]">
                     {item.name}
                   </div>
                   <div className="text-xs font-medium text-[#003366]">
@@ -114,7 +114,7 @@ const ProgressChart = ({ projectsDetail }) => {
       <div className="flex flex-wrap justify-center mt-6 gap-3 text-xs">
         <div className="flex items-center gap-1.5 px-2 py-1 bg-[#E6F0F8] rounded-full">
           <div className="w-3 h-3 rounded-full bg-gradient-to-r from-gray-500 to-gray-400"></div>
-          <span className="text-[#003366]">Not Started</span>
+          <span className="text-[#003366]">Mobilised</span>
         </div>
         <div className="flex items-center gap-1.5 px-2 py-1 bg-[#E6F0F8] rounded-full">
           <div className="w-3 h-3 rounded-full bg-gradient-to-r from-purple-500 to-purple-400"></div>
@@ -149,7 +149,7 @@ export default function Dashboard() {
   const [projectsDetail, setProjectsDetail] = useState([]);
   const [selectedProjects, setSelectedProjects] = useState([]);
   const [showBulkUpdate, setShowBulkUpdate] = useState(false);
-  const [bulkStatus, setBulkStatus] = useState("Not Started");
+  const [bulkStatus, setBulkStatus] = useState("Mobilised");
   const role = Cookies.get("Role");
   const router = useRouter();
 
@@ -208,7 +208,7 @@ export default function Dashboard() {
       setProjects(
         response.data.map((project) => ({
           ...project,
-          projectStatus: project.projectStatus || "Not Started",
+          projectStatus: project.projectStatus || "Mobilised",
         }))
       );
       setLoading(false);
@@ -241,7 +241,7 @@ export default function Dashboard() {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const statusStats = projects.reduce((acc, project) => {
-    const status = project.projectStatus || "Not Started";
+    const status = project.projectStatus || "Mobilised";
     acc[status] = (acc[status] || 0) + 1;
     return acc;
   }, {});
@@ -291,7 +291,12 @@ export default function Dashboard() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 rounded-xl p-4 bg-[#003366] border-5 border-[#0000FF]">
           <div className="flex items-center gap-4">
             <div className="flex items-center">
-              <Image src="/image1.png" alt="Description" width={250} height={250} />
+              <Image
+                src="/image1.png"
+                alt="Description"
+                width={250}
+                height={250}
+              />
             </div>
           </div>
 
@@ -316,10 +321,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ProgressChart projectsDetail={projectsDetail} />
-
+        <div className="space-y-5">
           <div className="bg-white rounded-xl p-6 border-5 shadow-sm border-[#0000FF]">
             <div className="flex items-center gap-3 mb-6">
               <Activity className="text-[#0000C0]" size={20} />
@@ -328,7 +330,7 @@ export default function Dashboard() {
               </h2>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-6 gap-4">
               <div className="bg-blue-50 p-4 rounded-lg">
                 <div className="text-sm text-blue-600 font-medium mb-1">
                   Total Projects
@@ -340,10 +342,10 @@ export default function Dashboard() {
 
               <div className="bg-gray-50 p-4 rounded-lg">
                 <div className="text-sm text-gray-600 font-medium mb-1">
-                  Not Started
+                  Mobilised
                 </div>
                 <div className="text-2xl font-bold text-gray-900">
-                  {projects.length} {/* All projects start as Not Started */}
+                  {projects.length} {/* All projects start as Mobilised */}
                 </div>
               </div>
 
@@ -408,6 +410,8 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
+
+          <ProgressChart projectsDetail={projectsDetail} />
         </div>
 
         {/* Projects Table Section */}
@@ -502,10 +506,11 @@ export default function Dashboard() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <Link
-                          href={`project/?projectid=${project._id
-                            }&projectDetails=${encodeURIComponent(
-                              project.projectName
-                            )}`}
+                          href={`project/?projectid=${
+                            project._id
+                          }&projectDetails=${encodeURIComponent(
+                            project.projectName
+                          )}`}
                           className="flex items-center space-x-3 group"
                         >
                           <div className="bg-[#E6F0F8] p-2 rounded-lg">
@@ -519,9 +524,9 @@ export default function Dashboard() {
 
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
-                          {project.projectStatus === "Not Started" && (
+                          {project.projectStatus === "Mobilised" && (
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                              Not Started
+                              Mobilised
                             </span>
                           )}
                           {project.projectStatus === "Data Received" && (
@@ -536,16 +541,16 @@ export default function Dashboard() {
                           )}
                           {project.projectStatus ===
                             "Internal Review of Audit Report" && (
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#E6F0F8] text-[#003366]">
-                                Internal Review
-                              </span>
-                            )}
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#E6F0F8] text-[#003366]">
+                              Internal Review
+                            </span>
+                          )}
                           {project.projectStatus ===
                             "Audit Report Submitted" && (
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                Report Submitted
-                              </span>
-                            )}
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                              Report Submitted
+                            </span>
+                          )}
 
                           {role === "Admin" && (
                             <button
@@ -584,10 +589,11 @@ export default function Dashboard() {
                           )}
 
                           <Link
-                            href={`project/?projectid=${project._id
-                              }&projectDetails=${encodeURIComponent(
-                                project.projectName
-                              )}`}
+                            href={`project/?projectid=${
+                              project._id
+                            }&projectDetails=${encodeURIComponent(
+                              project.projectName
+                            )}`}
                             className="text-[#0000C0] hover:text-[#003366] p-1 rounded-full hover:bg-[#E6F0F8]"
                             title="View project"
                           >
@@ -629,10 +635,11 @@ export default function Dashboard() {
                 <button
                   onClick={() => paginate(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
-                  className={`px-3 py-1 rounded-md ${currentPage === 1
+                  className={`px-3 py-1 rounded-md ${
+                    currentPage === 1
                       ? "bg-[#E6F0F8] text-[#003366] cursor-not-allowed"
                       : "bg-[#E6F0F8] text-[#003366] hover:bg-[#D0E0F0]"
-                    }`}
+                  }`}
                 >
                   Previous
                 </button>
@@ -641,10 +648,11 @@ export default function Dashboard() {
                     <button
                       key={number}
                       onClick={() => paginate(number)}
-                      className={`px-3 py-1 rounded-md min-w-[36px] ${currentPage === number
+                      className={`px-3 py-1 rounded-md min-w-[36px] ${
+                        currentPage === number
                           ? "bg-[#0000C0] text-white"
                           : "bg-[#E6F0F8] text-[#003366] hover:bg-[#D0E0F0]"
-                        }`}
+                      }`}
                     >
                       {number}
                     </button>
@@ -655,10 +663,11 @@ export default function Dashboard() {
                     paginate(Math.min(totalPages, currentPage + 1))
                   }
                   disabled={currentPage === totalPages}
-                  className={`px-3 py-1 rounded-md ${currentPage === totalPages
+                  className={`px-3 py-1 rounded-md ${
+                    currentPage === totalPages
                       ? "bg-[#E6F0F8] text-[#003366] cursor-not-allowed"
                       : "bg-[#E6F0F8] text-[#003366] hover:bg-[#D0E0F0]"
-                    }`}
+                  }`}
                 >
                   Next
                 </button>
@@ -686,7 +695,7 @@ export default function Dashboard() {
                       "/api/routes/project?action=createProject",
                       {
                         projectName: name,
-                        projectStatus: "Not Started",
+                        projectStatus: "Mobilised",
                       }
                     );
                     setShowCreatePopup(false);
@@ -773,7 +782,7 @@ export default function Dashboard() {
             </h2>
             <div className="space-y-3 mb-6">
               {[
-                "Not Started",
+                "Mobilised",
                 "Data Received",
                 "Audit Completed",
                 "Internal Review of Audit Report",
@@ -781,10 +790,11 @@ export default function Dashboard() {
               ].map((status) => (
                 <div
                   key={status}
-                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${projectToEdit.projectStatus === status
+                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                    projectToEdit.projectStatus === status
                       ? "border-[#0000C0] bg-[#E6F0F8]"
                       : "border-[#E6F0F8] hover:bg-[#F5F9FC]"
-                    }`}
+                  }`}
                   onClick={() =>
                     setProjectToEdit({
                       ...projectToEdit,
@@ -793,7 +803,7 @@ export default function Dashboard() {
                   }
                 >
                   <div className="flex items-center gap-3">
-                    {status === "Not Started" && (
+                    {status === "Mobilised" && (
                       <Clock className="text-[#003366]" size={18} />
                     )}
                     {status === "Data Received" && (
@@ -856,7 +866,7 @@ export default function Dashboard() {
             </h2>
             <div className="space-y-3 mb-6">
               {[
-                "Not Started",
+                "Mobilised",
                 "Data Received",
                 "Audit Completed",
                 "Internal Review of Audit Report",
@@ -864,14 +874,15 @@ export default function Dashboard() {
               ].map((status) => (
                 <div
                   key={status}
-                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${bulkStatus === status
+                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                    bulkStatus === status
                       ? "border-[#0000C0] bg-[#E6F0F8]"
                       : "border-[#E6F0F8] hover:bg-[#F5F9FC]"
-                    }`}
+                  }`}
                   onClick={() => setBulkStatus(status)}
                 >
                   <div className="flex items-center gap-3">
-                    {status === "Not Started" && (
+                    {status === "Mobilised" && (
                       <Clock className="text-[#003366]" size={18} />
                     )}
                     {status === "Data Received" && (

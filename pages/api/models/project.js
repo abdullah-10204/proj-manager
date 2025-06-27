@@ -50,7 +50,7 @@ const ProjectSchema = new mongoose.Schema({
     projectStatus: {
         type: String,
         required: false,
-        default:"Not Started"
+        default:"Mobilised"
     },
     folders: [FolderSchema],
     checklist: [ChecklistItemSchema]

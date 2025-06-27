@@ -205,8 +205,8 @@ function SigninUser() {
               disabled={loading}
               className={`mt-4 w-full py-4 px-6 rounded-[58px] text-white font-semibold cursor-pointer flex items-center justify-center gap-2 ${
                 loading
-                  ? "bg-blue-400 cursor-not-allowed"
-                  : "bg-[#003366]  hover:bg-[#003366]"
+                  ? "bg-[#0d2130] cursor-not-allowed"
+                  : "bg-[#0d2130]  hover:bg-[#22323e]"
               }`}
             >
               {loading ? (

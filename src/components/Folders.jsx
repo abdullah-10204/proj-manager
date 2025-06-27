@@ -19,8 +19,8 @@ import { MoreVertical, Plus, FolderPlus, Upload, File, Folder, ChevronUp } from 
 import { createClient } from '@supabase/supabase-js';
 import Cookies from "js-cookie";
 
-const supabaseUrl = "https://byaiqxqedhbtgchwotds.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ5YWlxeHFlZGhidGdjaHdvdGRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk4MjY1ODIsImV4cCI6MjA2NTQwMjU4Mn0.XKkb_c3ca0V4LnAuCox7J-jlNHNyuC1mYO2pMUFsvZc";
+const supabaseUrl = "https://tvwcfdsbjfxyepyqbacd.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2d2NmZHNiamZ4eWVweXFiYWNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA5MzMzMDMsImV4cCI6MjA2NjUwOTMwM30._T3SVwlAeDcwi4wEzD-XX5JRKxikXI5e_jd4CUXhnKA";
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const FileBrowser = ({ folders: initialFolders, projectId }) => {
@@ -160,7 +160,7 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
         : `projects/${projectId}/${fileName}`;
 
       const { data, error } = await supabase.storage
-        .from('proj-manager')
+        .from('scmview')
         .upload(fullPath, file);
 
       if (error) throw error;
