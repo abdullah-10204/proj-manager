@@ -385,7 +385,7 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
                         <DropdownMenuContent align="end" className="border border-[#003366]">
                           {isFolder(item) ? (
                             <>
-                              <DropdownMenuItem 
+                              <DropdownMenuItem
                                 onClick={() => handleAddSubfolder(item._id)}
                                 className="text-[#003366] hover:bg-[#E6F0F8]"
                               >
@@ -406,16 +406,15 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
                             </>
                           ) : (
                             <DropdownMenuItem
-                              onClick={() =>
-                                window.open(
-                                  `https://byaiqxqedhbtgchwotds.supabase.co/storage/v1/object/public/proj-manager/${item.url}`,
-                                  '_blank'
-                                )
-                              }
+                              onClick={() => {
+                                const supabaseUrl = `https://tvwcfdsbjfxyepyqbacd.supabase.co/storage/v1/object/public/scmview/${item.url}`;
+                                const googleDocsViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(supabaseUrl)}&embedded=true`;
+                                window.open(googleDocsViewerUrl, '_blank');
+                              }}
                               className="text-[#003366] hover:bg-[#E6F0F8]"
                             >
                               <File className="mr-2 h-4 w-4 text-[#0000C0]" />
-                              Open File
+                             Open File
                             </DropdownMenuItem>
                           )}
                         </DropdownMenuContent>
@@ -445,14 +444,14 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
             />
           </div>
           <DialogFooter>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => setIsFolderDialogOpen(false)}
               className="border border-[#003366] text-[#003366] hover:bg-[#E6F0F8]"
             >
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={selectedFolderId ? confirmAddSubfolder : confirmAddFolder}
               className="bg-gradient-to-r from-[#0000C0] to-[#0000C0] hover:from-[#000080] hover:to-[#000080] text-white"
             >
