@@ -40,7 +40,7 @@ export default async function handler(req, res) {
                     return await addFolder(req, res);
                 case "deleteFile":
                     return await deleteFile(req, res);
-                case "updateFile":
+                case "updateFileName":
                     return await updateFile(req, res);
                 default:
                     return res.status(400).json({ message: "Invalid action parameter" });

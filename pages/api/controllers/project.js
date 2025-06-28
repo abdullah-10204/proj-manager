@@ -350,116 +350,106 @@ export const deleteProject = async (req, res) => {
 };
 
 export const updateFile = async (req, res) => {
-  const { projectId, folderId, subfolderId, fileId, updatedName } = req.body;
-
-  if (!projectId || !fileId || !updatedName) {
-    return res.status(400).json({ 
-      success: false,
-      message: 'Missing required fields: projectId, fileId, and updatedName are required' 
-    });
-  }
+  const { projectId, fileId, newName, folderId, isNested, parentFolderId } = req.body;
 
   try {
-    const updatePath = subfolderId 
-      ? `folders.$[folder].subfolders.$[subfolder].files.$[file].name`
-      : `folders.$[folder].files.$[file].name`;
+    await connectToDatabase();
 
-    const arrayFilters = [
-      { 'folder._id': folderId },
-      { 'file._id': fileId }
-    ];
-    
-    if (subfolderId) {
-      arrayFilters.push({ 'subfolder._id': subfolderId });
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
     }
 
-    const updatedProject = await Project.findOneAndUpdate(
-      { _id: projectId },
-      { $set: { [updatePath]: updatedName } },
-      { 
-        arrayFilters,
-        new: true,
-        runValidators: true
-      }
-    );
+    // Helper function to update filename recursively
+    const updateFilename = (folders) => {
+      return folders.map(folder => {
+        // Check files in current folder
+        const updatedFiles = folder.files.map(file => 
+          file._id.toString() === fileId ? { ...file.toObject(), name: newName } : file
+        );
 
-    if (!updatedProject) {
-      return res.status(404).json({
-        success: false,
-        message: 'Project not found or file update failed'
+        // Check subfolders if this is the parent folder (for nested files)
+        const updatedSubfolders = isNested && parentFolderId && folder._id.toString() === parentFolderId
+          ? folder.subfolders.map(subfolder => 
+              subfolder._id.toString() === folderId
+                ? {
+                    ...subfolder.toObject(),
+                    files: subfolder.files.map(file =>
+                      file._id.toString() === fileId ? { ...file.toObject(), name: newName } : file
+                    )
+                  }
+                : subfolder
+            )
+          : folder.subfolders;
+
+        return {
+          ...folder.toObject(),
+          files: updatedFiles,
+          subfolders: updatedSubfolders
+        };
       });
-    }
+    };
 
-    return res.status(200).json({
-      success: true,
-      message: 'File updated successfully',
-      data: updatedProject
-    });
+    const updatedFolders = updateFilename(project.folders);
+    project.folders = updatedFolders;
 
+    await project.save();
+
+    return res.status(200).json({ message: "File renamed successfully", project });
   } catch (error) {
-    console.error('Error updating file:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      error: error.message
-    });
+    console.error("Error updating file:", error);
+    return res.status(500).json({ error: "Failed to update file" });
   }
 };
 
 export const deleteFile = async (req, res) => {
-  const { projectId, folderId, subfolderId, fileId } = req.body;
-
-  if (!projectId || !folderId || !fileId) {
-    return res.status(400).json({ 
-      success: false,
-      message: 'Missing required fields: projectId, folderId, and fileId are required' 
-    });
-  }
+  const { projectId, fileId, folderId, isNested, parentFolderId } = req.body;
 
   try {
-    // Construct the pull operation path based on whether it's in a subfolder or not
-    const pullPath = subfolderId
-      ? `folders.$[folder].subfolders.$[subfolder].files`
-      : `folders.$[folder].files`;
+    await connectToDatabase();
 
-    // Prepare array filters
-    const arrayFilters = [
-      { 'folder._id': folderId }
-    ];
-    
-    if (subfolderId) {
-      arrayFilters.push({ 'subfolder._id': subfolderId });
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
     }
 
-    const updatedProject = await Project.findOneAndUpdate(
-      { _id: projectId },
-      { $pull: { [pullPath]: { _id: fileId } } },
-      { 
-        arrayFilters,
-        new: true
-      }
-    );
+    // Helper function to delete file recursively
+    const deleteFileFromFolders = (folders) => {
+      return folders.map(folder => {
+        // Filter out the file from current folder
+        const filteredFiles = folder.files.filter(
+          file => file._id.toString() !== fileId
+        );
 
-    if (!updatedProject) {
-      return res.status(404).json({
-        success: false,
-        message: 'Project not found or file deletion failed'
+        // Handle subfolders if this is the parent folder (for nested files)
+        const updatedSubfolders = isNested && parentFolderId && folder._id.toString() === parentFolderId
+          ? folder.subfolders.map(subfolder => 
+              subfolder._id.toString() === folderId
+                ? {
+                    ...subfolder.toObject(),
+                    files: subfolder.files.filter(file => file._id.toString() !== fileId)
+                  }
+                : subfolder
+            )
+          : folder.subfolders;
+
+        return {
+          ...folder.toObject(),
+          files: filteredFiles,
+          subfolders: updatedSubfolders
+        };
       });
-    }
+    };
 
-    return res.status(200).json({
-      success: true,
-      message: 'File deleted successfully',
-      data: updatedProject
-    });
+    const updatedFolders = deleteFileFromFolders(project.folders);
+    project.folders = updatedFolders;
 
+    await project.save();
+
+    return res.status(200).json({ message: "File deleted successfully", project });
   } catch (error) {
-    console.error('Error deleting file:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      error: error.message
-    });
+    console.error("Error deleting file:", error);
+    return res.status(500).json({ error: "Failed to delete file" });
   }
 };
 
