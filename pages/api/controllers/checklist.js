@@ -98,23 +98,35 @@ const getAllProjectsChecklists = async (req, res) => {
     }
 };
 
-
-
 const askAiQuestion = async (req, res) => {
     try {
-        const { question, context } = req.body;
+        const { question, projectId } = req.body;
 
-        if (!question) {
-            return res.status(400).json({ error: 'Question is required' });
+        if (!question || !projectId) {
+            return res.status(400).json({ 
+                error: 'Question and project ID are required' 
+            });
         }
+
+        await connectToDatabase();
+        
+        const project = await Project.findById(projectId);
+        if (!project) {
+            return res.status(404).json({ error: 'Project not found' });
+        }
+
+        const checklistContext = project.checklist.map(item => 
+            `Control Item: ${item.controlItem}\nObjective: ${item.controlObjective}\nAnswer: ${item.answer || 'Not answered'}`
+        ).join('\n\n');
 
         const completion = await openai.chat.completions.create({
             model: "gpt-3.5-turbo",
             messages: [
                 {
                     role: "system",
-                    content: "You are a compliance expert assistant. Provide clear, concise answers to compliance questions. " +
-                        (context || "The user is asking about compliance requirements.")
+                    content: `You are a compliance expert assistant for the project "${project.projectName}". 
+                    Provide clear, concise answers to compliance questions based on the project's checklist items.
+                    Here are the project's current checklist items and answers:\n\n${checklistContext}`
                 },
                 {
                     role: "user",
@@ -127,7 +139,64 @@ const askAiQuestion = async (req, res) => {
 
         const answer = completion.choices[0]?.message?.content || "I couldn't generate an answer for this question.";
 
-        return res.status(200).json({ answer });
+        return res.status(200).json({ 
+            projectName: project.projectName,
+            answer 
+        });
+
+    } catch (error) {
+        console.error('AI Assistant Error:', error);
+        return res.status(500).json({
+            error: error.message || 'Failed to process your question'
+        });
+    }
+};
+
+const askAiQuestionAboutAllProject = async (req, res) => {
+    try {
+        const { question } = req.body;
+
+        if (!question) {
+            return res.status(400).json({ error: 'Question is required' });
+        }
+
+        await connectToDatabase();
+        
+        const projects = await Project.find().select('projectName checklist');
+
+        const projectsContext = projects.map(project => {
+            const checklistSummary = project.checklist
+                .filter(item => item.answer) // Only include answered items
+                .map(item => `${item.controlItem}: ${item.answer}`)
+                .join(', ');
+            
+            return `Project: ${project.projectName}\nChecklist Summary: ${checklistSummary || 'No answered items'}`;
+        }).join('\n\n');
+
+        const completion = await openai.chat.completions.create({
+            model: "gpt-3.5-turbo",
+            messages: [
+                {
+                    role: "system",
+                    content: `You are a compliance expert assistant analyzing multiple projects. 
+                    Provide insights and answers based on the collective data from all projects.
+                    Here's a summary of projects and their checklist answers:\n\n${projectsContext}`
+                },
+                {
+                    role: "user",
+                    content: question
+                }
+            ],
+            temperature: 0.7,
+            max_tokens: 500
+        });
+
+        const answer = completion.choices[0]?.message?.content || "I couldn't generate an answer for this question.";
+
+        return res.status(200).json({ 
+            totalProjects: projects.length,
+            answer 
+        });
 
     } catch (error) {
         console.error('AI Assistant Error:', error);
@@ -141,5 +210,6 @@ export {
     getChecklistItems,
     updateChecklistAnswer,
     getAllProjectsChecklists,
-    askAiQuestion
+    askAiQuestion,
+    askAiQuestionAboutAllProject
 };

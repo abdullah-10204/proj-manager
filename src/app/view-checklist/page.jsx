@@ -79,7 +79,7 @@ const ChecklistContent = () => {
         try {
             const response = await axios.post('/api/routes/checklist?action=askAiQuestion', {
                 question: aiQuestion,
-                context: `This question is related to a compliance checklist project (ID: ${projectId}). The user is asking:`
+                projectId,
             });
             
             setAiAnswer(response.data.answer);

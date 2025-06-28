@@ -2,7 +2,8 @@ import {
     updateChecklistAnswer,
     getChecklistItems,
     getAllProjectsChecklists,
-    askAiQuestion
+    askAiQuestion,
+    askAiQuestionAboutAllProject
 } from "../controllers/checklist";
 
 export default async function handler(req, res) {
@@ -23,6 +24,8 @@ export default async function handler(req, res) {
                     return await getAllProjectsChecklists(req, res);
                 case "askAiQuestion":
                     return await askAiQuestion(req, res);
+                case "askAiQuestionAboutAllProject":
+                    return await askAiQuestionAboutAllProject(req, res);
                 default:
                     return res.status(400).json({ message: "Invalid action parameter" });
             }

@@ -9,14 +9,13 @@ import {
   Activity,
   CheckCircle,
   Archive,
-  Zap,
   Clock,
   TrendingUp,
-  Layers,
   Search,
   FolderOpen,
   LogOut,
   Edit,
+  Sparkles
 } from "lucide-react";
 import Link from "next/link";
 import axios from "axios";
@@ -71,12 +70,12 @@ const ProgressChart = ({ projectsDetail }) => {
               item.status === "Audit Report Submitted"
                 ? "bg-gradient-to-r from-green-500 to-green-400"
                 : item.status === "Internal Review of Audit Report"
-                ? "bg-gradient-to-r from-[#0000C0] to-[#0000C0]"
-                : item.status === "Audit Completed"
-                ? "bg-gradient-to-r from-amber-500 to-amber-400"
-                : item.status === "Data Received"
-                ? "bg-gradient-to-r from-purple-500 to-purple-400"
-                : "bg-gradient-to-r from-gray-500 to-gray-400";
+                  ? "bg-gradient-to-r from-[#0000C0] to-[#0000C0]"
+                  : item.status === "Audit Completed"
+                    ? "bg-gradient-to-r from-amber-500 to-amber-400"
+                    : item.status === "Data Received"
+                      ? "bg-gradient-to-r from-purple-500 to-purple-400"
+                      : "bg-gradient-to-r from-gray-500 to-gray-400";
 
             return (
               <div key={item.id} className="group">
@@ -152,6 +151,11 @@ export default function Dashboard() {
   const [bulkStatus, setBulkStatus] = useState("Mobilised");
   const role = Cookies.get("Role");
   const router = useRouter();
+
+  const [showAIPopup, setShowAIPopup] = useState(false);
+  const [aiQuestion, setAiQuestion] = useState("");
+  const [aiAnswer, setAiAnswer] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
 
   const handleLogout = () => {
     Cookies.remove("isAuthenticated");
@@ -284,6 +288,27 @@ export default function Dashboard() {
     }
   };
 
+  const handleAskAI = async () => {
+    if (!aiQuestion.trim()) {
+      alert("Please enter a question");
+      return;
+    }
+
+    try {
+      setAiLoading(true);
+      const response = await axios.post("/api/routes/checklist?action=askAiQuestionAboutAllProject", {
+        question: aiQuestion
+      });
+
+      setAiAnswer(response.data.answer);
+    } catch (error) {
+      console.error("Error asking AI question:", error);
+      setAiAnswer("Failed to get answer. Please try again.");
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen p-4 sm:p-6 bg-[#003366]">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -309,12 +334,20 @@ export default function Dashboard() {
               <span className="hidden sm:inline">Logout</span>
             </button>
 
+            <button
+              onClick={() => setShowAIPopup(true)}
+              className="flex items-center gap-2 px-3 py-2 text-sm text-white hover:bg-[#0000C0] rounded-lg transition"
+            >
+              <Sparkles size={16} />
+              <span className="hidden sm:inline">Ask AI</span>
+            </button>
+
             {role === "Admin" && (
               <button
                 onClick={() => setShowCreatePopup(true)}
                 className="px-4 py-2 bg-gradient-to-r from-[#0000C0] to-[#0000C0] text-white hover:from-[#000080] hover:to-[#000080] rounded-lg transition flex items-center gap-2 shadow-md hover:shadow-lg flex-1 sm:flex-none justify-center"
               >
-                <Plus size={18} />{" "}
+                <Plus size={18} />
                 <span className="hidden sm:inline">New Project</span>
               </button>
             )}
@@ -506,11 +539,10 @@ export default function Dashboard() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <Link
-                          href={`project/?projectid=${
-                            project._id
-                          }&projectDetails=${encodeURIComponent(
-                            project.projectName
-                          )}`}
+                          href={`project/?projectid=${project._id
+                            }&projectDetails=${encodeURIComponent(
+                              project.projectName
+                            )}`}
                           className="flex items-center space-x-3 group"
                         >
                           <div className="bg-[#E6F0F8] p-2 rounded-lg">
@@ -541,16 +573,16 @@ export default function Dashboard() {
                           )}
                           {project.projectStatus ===
                             "Internal Review of Audit Report" && (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#E6F0F8] text-[#003366]">
-                              Internal Review
-                            </span>
-                          )}
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#E6F0F8] text-[#003366]">
+                                Internal Review
+                              </span>
+                            )}
                           {project.projectStatus ===
                             "Audit Report Submitted" && (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                              Report Submitted
-                            </span>
-                          )}
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Report Submitted
+                              </span>
+                            )}
 
                           {role === "Admin" && (
                             <button
@@ -589,11 +621,10 @@ export default function Dashboard() {
                           )}
 
                           <Link
-                            href={`project/?projectid=${
-                              project._id
-                            }&projectDetails=${encodeURIComponent(
-                              project.projectName
-                            )}`}
+                            href={`project/?projectid=${project._id
+                              }&projectDetails=${encodeURIComponent(
+                                project.projectName
+                              )}`}
                             className="text-[#0000C0] hover:text-[#003366] p-1 rounded-full hover:bg-[#E6F0F8]"
                             title="View project"
                           >
@@ -635,11 +666,10 @@ export default function Dashboard() {
                 <button
                   onClick={() => paginate(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
-                  className={`px-3 py-1 rounded-md ${
-                    currentPage === 1
-                      ? "bg-[#E6F0F8] text-[#003366] cursor-not-allowed"
-                      : "bg-[#E6F0F8] text-[#003366] hover:bg-[#D0E0F0]"
-                  }`}
+                  className={`px-3 py-1 rounded-md ${currentPage === 1
+                    ? "bg-[#E6F0F8] text-[#003366] cursor-not-allowed"
+                    : "bg-[#E6F0F8] text-[#003366] hover:bg-[#D0E0F0]"
+                    }`}
                 >
                   Previous
                 </button>
@@ -648,11 +678,10 @@ export default function Dashboard() {
                     <button
                       key={number}
                       onClick={() => paginate(number)}
-                      className={`px-3 py-1 rounded-md min-w-[36px] ${
-                        currentPage === number
-                          ? "bg-[#0000C0] text-white"
-                          : "bg-[#E6F0F8] text-[#003366] hover:bg-[#D0E0F0]"
-                      }`}
+                      className={`px-3 py-1 rounded-md min-w-[36px] ${currentPage === number
+                        ? "bg-[#0000C0] text-white"
+                        : "bg-[#E6F0F8] text-[#003366] hover:bg-[#D0E0F0]"
+                        }`}
                     >
                       {number}
                     </button>
@@ -663,11 +692,10 @@ export default function Dashboard() {
                     paginate(Math.min(totalPages, currentPage + 1))
                   }
                   disabled={currentPage === totalPages}
-                  className={`px-3 py-1 rounded-md ${
-                    currentPage === totalPages
-                      ? "bg-[#E6F0F8] text-[#003366] cursor-not-allowed"
-                      : "bg-[#E6F0F8] text-[#003366] hover:bg-[#D0E0F0]"
-                  }`}
+                  className={`px-3 py-1 rounded-md ${currentPage === totalPages
+                    ? "bg-[#E6F0F8] text-[#003366] cursor-not-allowed"
+                    : "bg-[#E6F0F8] text-[#003366] hover:bg-[#D0E0F0]"
+                    }`}
                 >
                   Next
                 </button>
@@ -790,11 +818,10 @@ export default function Dashboard() {
               ].map((status) => (
                 <div
                   key={status}
-                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                    projectToEdit.projectStatus === status
-                      ? "border-[#0000C0] bg-[#E6F0F8]"
-                      : "border-[#E6F0F8] hover:bg-[#F5F9FC]"
-                  }`}
+                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${projectToEdit.projectStatus === status
+                    ? "border-[#0000C0] bg-[#E6F0F8]"
+                    : "border-[#E6F0F8] hover:bg-[#F5F9FC]"
+                    }`}
                   onClick={() =>
                     setProjectToEdit({
                       ...projectToEdit,
@@ -874,11 +901,10 @@ export default function Dashboard() {
               ].map((status) => (
                 <div
                   key={status}
-                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                    bulkStatus === status
-                      ? "border-[#0000C0] bg-[#E6F0F8]"
-                      : "border-[#E6F0F8] hover:bg-[#F5F9FC]"
-                  }`}
+                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${bulkStatus === status
+                    ? "border-[#0000C0] bg-[#E6F0F8]"
+                    : "border-[#E6F0F8] hover:bg-[#F5F9FC]"
+                    }`}
                   onClick={() => setBulkStatus(status)}
                 >
                   <div className="flex items-center gap-3">
@@ -914,6 +940,72 @@ export default function Dashboard() {
                 className="px-4 py-2 bg-gradient-to-r from-[#0000C0] to-[#0000C0] text-white hover:from-[#000080] hover:to-[#000080] rounded-lg transition"
               >
                 Update All
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showAIPopup && (
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl border border-[#003366] shadow-xl p-6 w-full max-w-2xl">
+            <h2 className="text-xl font-bold text-[#003366] mb-4">
+              Ask AI About Projects
+            </h2>
+
+            <div className="mb-4">
+              <label htmlFor="aiQuestion" className="block text-sm font-medium text-[#003366] mb-1">
+                Your Question *
+              </label>
+              <textarea
+                id="aiQuestion"
+                rows={3}
+                className="w-full px-3 py-2 border border-[#003366] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0000C0]"
+                placeholder="Ask anything about your projects..."
+                value={aiQuestion}
+                onChange={(e) => setAiQuestion(e.target.value)}
+                disabled={aiLoading}
+              />
+            </div>
+
+            {aiAnswer && (
+              <div className="mb-4 p-4 bg-[#E6F0F8] rounded-lg">
+                <h3 className="font-medium text-[#003366] mb-2">AI Response:</h3>
+                <p className="text-[#003366] whitespace-pre-wrap">{aiAnswer}</p>
+              </div>
+            )}
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowAIPopup(false);
+                  setAiQuestion("");
+                  setAiAnswer("");
+                }}
+                className="px-4 py-2 text-[#003366] hover:bg-[#E6F0F8] rounded-lg transition"
+                disabled={aiLoading}
+              >
+                Close
+              </button>
+              <button
+                onClick={handleAskAI}
+                className="px-4 py-2 bg-gradient-to-r from-[#0000C0] to-[#0000C0] text-white hover:from-[#000080] hover:to-[#000080] rounded-lg transition flex items-center gap-2"
+                disabled={aiLoading}
+              >
+                {aiLoading ? (
+                  <>
+                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles size={16} />
+                    Ask AI
+                  </>
+                )}
               </button>
             </div>
           </div>

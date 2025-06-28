@@ -9,7 +9,9 @@ import {
     uploadFileToFolder,
     deleteProject,
     addFolder,
-    updateProjectStatus
+    updateProjectStatus,
+    deleteFile,
+    updateFile
 } from "../controllers/project";
 
 export default async function handler(req, res) {
@@ -36,8 +38,10 @@ export default async function handler(req, res) {
                     return await deleteProject(req, res);
                 case "addFolder":
                     return await addFolder(req, res);
-                case "updateProjectStatus":
-                    return await updateProjectStatus(req, res);
+                case "deleteFile":
+                    return await deleteFile(req, res);
+                case "updateFile":
+                    return await updateFile(req, res);
                 default:
                     return res.status(400).json({ message: "Invalid action parameter" });
             }

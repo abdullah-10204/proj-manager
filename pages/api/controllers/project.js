@@ -349,3 +349,117 @@ export const deleteProject = async (req, res) => {
   }
 };
 
+export const updateFile = async (req, res) => {
+  const { projectId, folderId, subfolderId, fileId, updatedName } = req.body;
+
+  if (!projectId || !fileId || !updatedName) {
+    return res.status(400).json({ 
+      success: false,
+      message: 'Missing required fields: projectId, fileId, and updatedName are required' 
+    });
+  }
+
+  try {
+    const updatePath = subfolderId 
+      ? `folders.$[folder].subfolders.$[subfolder].files.$[file].name`
+      : `folders.$[folder].files.$[file].name`;
+
+    const arrayFilters = [
+      { 'folder._id': folderId },
+      { 'file._id': fileId }
+    ];
+    
+    if (subfolderId) {
+      arrayFilters.push({ 'subfolder._id': subfolderId });
+    }
+
+    const updatedProject = await Project.findOneAndUpdate(
+      { _id: projectId },
+      { $set: { [updatePath]: updatedName } },
+      { 
+        arrayFilters,
+        new: true,
+        runValidators: true
+      }
+    );
+
+    if (!updatedProject) {
+      return res.status(404).json({
+        success: false,
+        message: 'Project not found or file update failed'
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'File updated successfully',
+      data: updatedProject
+    });
+
+  } catch (error) {
+    console.error('Error updating file:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: error.message
+    });
+  }
+};
+
+export const deleteFile = async (req, res) => {
+  const { projectId, folderId, subfolderId, fileId } = req.body;
+
+  if (!projectId || !folderId || !fileId) {
+    return res.status(400).json({ 
+      success: false,
+      message: 'Missing required fields: projectId, folderId, and fileId are required' 
+    });
+  }
+
+  try {
+    // Construct the pull operation path based on whether it's in a subfolder or not
+    const pullPath = subfolderId
+      ? `folders.$[folder].subfolders.$[subfolder].files`
+      : `folders.$[folder].files`;
+
+    // Prepare array filters
+    const arrayFilters = [
+      { 'folder._id': folderId }
+    ];
+    
+    if (subfolderId) {
+      arrayFilters.push({ 'subfolder._id': subfolderId });
+    }
+
+    const updatedProject = await Project.findOneAndUpdate(
+      { _id: projectId },
+      { $pull: { [pullPath]: { _id: fileId } } },
+      { 
+        arrayFilters,
+        new: true
+      }
+    );
+
+    if (!updatedProject) {
+      return res.status(404).json({
+        success: false,
+        message: 'Project not found or file deletion failed'
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'File deleted successfully',
+      data: updatedProject
+    });
+
+  } catch (error) {
+    console.error('Error deleting file:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: error.message
+    });
+  }
+};
+

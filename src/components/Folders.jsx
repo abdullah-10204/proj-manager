@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
@@ -15,7 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreVertical, Plus, FolderPlus, Upload, File, Folder, ChevronUp } from "lucide-react";
+import { MoreVertical, Plus, FolderPlus, Upload, File, Folder, ChevronUp, Trash2, Eye, Edit } from "lucide-react";
 import { createClient } from '@supabase/supabase-js';
 import Cookies from "js-cookie";
 
@@ -31,6 +32,12 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
   const [isFolderDialogOpen, setIsFolderDialogOpen] = useState(false);
   const [selectedFolderId, setSelectedFolderId] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [fileToDelete, setFileToDelete] = useState(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isViewingFile, setIsViewingFile] = useState(false);
+  const [currentFileUrl, setCurrentFileUrl] = useState("");
+  const [editingFile, setEditingFile] = useState(null);
+  const [editFileName, setEditFileName] = useState("");
 
   const isFolder = (item) => {
     return item.hasOwnProperty('subfolders') || item.hasOwnProperty('files');
@@ -248,6 +255,90 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
     }
   };
 
+  const handleUpdateFile = async (fileId, updatedName) => {
+    if (!updatedName.trim()) return;
+
+    try {
+      const response = await fetch('/api/routes/project?action=updateFile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          projectId,
+          folderId: currentPath.length > 0 ? currentPath[0] : null,
+          subfolderId: currentPath.length > 1 ? currentPath[1] : null,
+          fileId,
+          updatedName
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update file');
+      }
+
+      const updatedProject = await response.json();
+      setFolders(updatedProject.folders);
+      setEditingFile(null);
+      setEditFileName("");
+      alert("File updated successfully");
+    } catch (error) {
+      console.error("Error updating file:", error);
+      alert("Error updating file");
+    }
+  };
+
+  const handleDeleteFile = (file) => {
+    setFileToDelete(file);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteFile = async () => {
+    if (!fileToDelete) return;
+
+    try {
+      // First delete from Supabase storage
+      const { error: storageError } = await supabase.storage
+        .from('scmview')
+        .remove([fileToDelete.url]);
+
+      if (storageError) throw storageError;
+
+      const response = await fetch('/api/routes/project?action=deleteFile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          projectId,
+          folderId: currentPath.length > 0 ? currentPath[0] : null,
+          subfolderId: currentPath.length > 1 ? currentPath[1] : null,
+          fileId: fileToDelete._id
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete file reference');
+      }
+
+      const updatedProject = await response.json();
+      setFolders(updatedProject.folders);
+
+      setIsDeleteDialogOpen(false);
+      setFileToDelete(null);
+      alert("File deleted successfully");
+    } catch (error) {
+      console.error("Error deleting file:", error);
+      alert("Error deleting file");
+    }
+  };
+
+  const handleViewFile = (file) => {
+    const supabaseUrl = `https://tvwcfdsbjfxyepyqbacd.supabase.co/storage/v1/object/public/scmview/${file.url}`;
+    const googleDocsViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(supabaseUrl)}&embedded=true`;
+    window.open(googleDocsViewerUrl, '_blank');
+  };
+
   const currentContents = getCurrentContents();
 
   return (
@@ -361,12 +452,35 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
                       ) : (
                         <File className="h-5 w-5 text-[#003366] mr-3" />
                       )}
-                      <button
-                        onClick={() => isFolder(item) && navigateToFolder(item._id)}
-                        className={`${isFolder(item) ? 'text-[#0000C0] hover:text-[#003366] cursor-pointer' : 'text-[#003366]'}`}
-                      >
-                        {item.name}
-                      </button>
+                      {editingFile?._id === item._id ? (
+                        <div className="flex items-center space-x-2">
+                          <Input
+                            value={editFileName}
+                            onChange={(e) => setEditFileName(e.target.value)}
+                            className="h-8 w-64"
+                          />
+                          <Button
+                            size="sm"
+                            onClick={() => handleUpdateFile(item._id, editFileName)}
+                          >
+                            Save
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setEditingFile(null)}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => isFolder(item) ? navigateToFolder(item._id) : handleViewFile(item)}
+                          className={`${isFolder(item) ? 'text-[#0000C0] hover:text-[#003366] cursor-pointer' : 'text-[#003366] hover:text-[#0000C0] cursor-pointer'}`}
+                        >
+                          {item.name}
+                        </button>
+                      )}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -405,17 +519,32 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
                               </DropdownMenuItem>
                             </>
                           ) : (
-                            <DropdownMenuItem
-                              onClick={() => {
-                                const supabaseUrl = `https://tvwcfdsbjfxyepyqbacd.supabase.co/storage/v1/object/public/scmview/${item.url}`;
-                                const googleDocsViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(supabaseUrl)}&embedded=true`;
-                                window.open(googleDocsViewerUrl, '_blank');
-                              }}
-                              className="text-[#003366] hover:bg-[#E6F0F8]"
-                            >
-                              <File className="mr-2 h-4 w-4 text-[#0000C0]" />
-                             Open File
-                            </DropdownMenuItem>
+                            <>
+                              <DropdownMenuItem
+                                onClick={() => handleViewFile(item)}
+                                className="text-[#003366] hover:bg-[#E6F0F8]"
+                              >
+                                <Eye className="mr-2 h-4 w-4 text-[#0000C0]" />
+                                View File
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setEditingFile(item);
+                                  setEditFileName(item.name);
+                                }}
+                                className="text-[#003366] hover:bg-[#E6F0F8]"
+                              >
+                                <Edit className="mr-2 h-4 w-4 text-[#0000C0]" />
+                                Rename
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleDeleteFile(item)}
+                                className="text-[#003366] hover:bg-[#E6F0F8]"
+                              >
+                                <Trash2 className="mr-2 h-4 w-4 text-red-500" />
+                                Delete
+                              </DropdownMenuItem>
+                            </>
                           )}
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -458,6 +587,47 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
               Create
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="border border-[#003366]">
+          <DialogHeader>
+            <DialogTitle className="text-[#003366]">Delete File</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete "{fileToDelete?.name}"? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+              className="border border-[#003366] text-[#003366] hover:bg-[#E6F0F8]"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmDeleteFile}
+              className="bg-red-500 hover:bg-red-600 text-white"
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isViewingFile} onOpenChange={setIsViewingFile} className="max-w-4xl">
+        <DialogContent className="border border-[#003366] max-w-4xl h-[80vh]">
+          <DialogHeader>
+            <DialogTitle className="text-[#003366]">View File</DialogTitle>
+          </DialogHeader>
+          <div className="h-full">
+            <iframe
+              src={currentFileUrl}
+              className="w-full h-full border border-[#003366] rounded"
+              frameBorder="0"
+            />
+          </div>
         </DialogContent>
       </Dialog>
 

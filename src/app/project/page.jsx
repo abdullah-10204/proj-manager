@@ -77,7 +77,6 @@ const ProjectContent = () => {
                     </Link>
                 </div>
                 
-                {/* Second main block with thick blue border */}
                 <div className="border-4 border-[#0000FF] rounded-xl p-4 bg-white">
                     <Folders folders={folders} projectId={projectId} />
                 </div>
