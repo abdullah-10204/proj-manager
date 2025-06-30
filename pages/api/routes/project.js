@@ -42,6 +42,8 @@ export default async function handler(req, res) {
                     return await deleteFile(req, res);
                 case "updateFileName":
                     return await updateFile(req, res);
+                case "updateProjectStatus":
+                    return await updateProjectStatus(req, res);
                 default:
                     return res.status(400).json({ message: "Invalid action parameter" });
             }

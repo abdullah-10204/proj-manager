@@ -21,7 +21,8 @@ export const createProject = async (req, res) => {
 export const updateProjectStatus = async (req, res) => {
   try {
     const { projectId, projectIds, status } = req.body;
-
+    console.log(" projectId, projectIds, status", projectId, projectIds, status);
+    
     if ((!projectId && (!projectIds || !Array.isArray(projectIds))) || !status) {
       return res.status(400).json({
         success: false,
