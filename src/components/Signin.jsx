@@ -67,7 +67,7 @@ function SigninUser() {
           sameSite: "strict",
         });
         router.push("/dashboard");
-      } else if (email === "user123@gmail.com" && password === "user123") {
+      } else if (email === "timpandze.co.za" && password === "Rand123!") {
         Cookies.set("Role", "User", {
           expires,
           secure: true,
