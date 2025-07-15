@@ -156,6 +156,15 @@ export default function Dashboard() {
   const [aiQuestion, setAiQuestion] = useState("");
   const [aiAnswer, setAiAnswer] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
+  const [showCreateUserPopup, setShowCreateUserPopup] = useState(false);
+const [newUser, setNewUser] = useState({
+  email: "",
+  password: "",
+  role: "User" // Default role
+});
+const [userCreationError, setUserCreationError] = useState("");
+
+
 
   const handleLogout = () => {
     Cookies.remove("isAuthenticated");
@@ -342,7 +351,17 @@ export default function Dashboard() {
               <span className="hidden sm:inline">Ask AI</span>
             </button>
 
-            {role === "Admin" && (
+{role === "Admin" && (
+  <button
+    onClick={() => setShowCreateUserPopup(true)}
+    className="flex items-center gap-2 px-3 py-2 text-sm text-white hover:bg-[#0000C0] rounded-lg transition"
+  >
+    <Plus size={16} />
+    <span className="hidden sm:inline">Create User</span>
+  </button>
+)}
+
+            {role === "User" && (
               <button
                 onClick={() => setShowCreatePopup(true)}
                 className="px-4 py-2 bg-gradient-to-r from-[#0000C0] to-[#0000C0] text-white hover:from-[#000080] hover:to-[#000080] rounded-lg transition flex items-center gap-2 shadow-md hover:shadow-lg flex-1 sm:flex-none justify-center"
@@ -584,7 +603,7 @@ export default function Dashboard() {
                               </span>
                             )}
 
-                          {role === "Admin" && (
+                          {role === "User" && (
                             <button
                               onClick={(e) => {
                                 e.preventDefault();
@@ -607,7 +626,7 @@ export default function Dashboard() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         <div className="flex justify-center space-x-2">
-                          {role === "Admin" && (
+                          {role === "User" && (
                             <button
                               onClick={(e) => {
                                 e.preventDefault();
@@ -1011,6 +1030,92 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+{showCreateUserPopup && (
+  <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="bg-white rounded-xl border border-[#003366] shadow-xl p-6 w-full max-w-md">
+      <h2 className="text-xl font-bold text-[#003366] mb-4">
+        Create New User
+      </h2>
+      {userCreationError && (
+        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
+          {userCreationError}
+        </div>
+      )}
+      <form onSubmit={async (e) => {
+        e.preventDefault();
+        try {
+          const response = await axios.post("/api/routes/user?action=create", newUser);
+          if (response.data.success) {
+            setShowCreateUserPopup(false);
+            setNewUser({ email: "", password: "", role: "User" });
+            setUserCreationError("");
+          } else {
+            setUserCreationError(response.data.message || "Failed to create user");
+          }
+        } catch (error) {
+          setUserCreationError(error.response?.data?.message || "Failed to create user");
+        }
+      }}>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-[#003366] mb-1">
+            Email *
+          </label>
+          <input
+            type="email"
+            className="w-full px-3 py-2 border border-[#003366] rounded-md"
+            value={newUser.email}
+            onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-[#003366] mb-1">
+            Password *
+          </label>
+          <input
+            type="password"
+            className="w-full px-3 py-2 border border-[#003366] rounded-md"
+            value={newUser.password}
+            onChange={(e) => setNewUser({...newUser, password: e.target.value})}
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-[#003366] mb-1">
+            Role *
+          </label>
+          <select
+            className="w-full px-3 py-2 border border-[#003366] rounded-md"
+            value={newUser.role}
+            onChange={(e) => setNewUser({...newUser, role: e.target.value})}
+          >
+            <option value="User">User</option>
+            <option value="Admin">Admin</option>
+          </select>
+        </div>
+        <div className="flex justify-end gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              setShowCreateUserPopup(false);
+              setUserCreationError("");
+            }}
+            className="px-4 py-2 text-[#003366] hover:bg-[#E6F0F8] rounded-lg transition"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="px-4 py-2 bg-gradient-to-r from-[#0000C0] to-[#0000C0] text-white hover:from-[#000080] hover:to-[#000080] rounded-lg transition"
+          >
+            Create User
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
     </div>
   );
 }

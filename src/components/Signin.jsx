@@ -41,53 +41,49 @@ function SigninUser() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitAttempted(true);
-
-    if (!validateForm()) {
-      return;
-    }
-
+  
+    if (!validateForm()) return;
+  
     setLoading(true);
+  
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      const { email, password } = formData;
-
-      const expires = new Date();
-      expires.setDate(expires.getDate() + 7);
-
-      if (email === "adminuser123@gmail.com" && password === "admin123") {
-        Cookies.set("Role", "Admin", {
-          expires,
-          secure: true,
-          sameSite: "strict",
-        });
-        Cookies.set("isAuthenticated", "true", {
-          expires,
-          secure: true,
-          sameSite: "strict",
-        });
-        router.push("/dashboard");
-      } else if (email === "rwsupport@timpandze.co.za" && password === "Rand123!") {
-        Cookies.set("Role", "User", {
-          expires,
-          secure: true,
-          sameSite: "strict",
-        });
-        Cookies.set("isAuthenticated", "true", {
-          expires,
-          secure: true,
-          sameSite: "strict",
-        });
-        router.push("/dashboard");
+      const res = await fetch("/api/routes/auth", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+  
+      const data = await res.json();
+  
+      if (!res.ok) {
+        setErrors({ submit: data.message || "Login failed" });
       } else {
-        setErrors({ submit: "Invalid email or password" });
+        const expires = new Date();
+        expires.setDate(expires.getDate() + 7);
+  
+        Cookies.set("Role", data.role, {
+          expires,
+          secure: true,
+          sameSite: "strict",
+        });
+  
+        Cookies.set("isAuthenticated", "true", {
+          expires,
+          secure: true,
+          sameSite: "strict",
+        });
+  
+        router.push("/dashboard");
       }
-    } catch (error) {
-      setErrors({ submit: error.message });
+    } catch (err) {
+      setErrors({ submit: "Something went wrong. Try again later." });
     } finally {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="flex h-auto min-h-screen w-full">
