@@ -1,8 +1,21 @@
 const connectToDatabase = require("../config/db");
 const User = require("../models/user");
 
+const getUsers = async (req, res) => {
+    try {
+      await connectToDatabase();
+      const users = await User.find({}, 'email role');
+      res.status(200).json(users);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  };
+
 export default async function handler(req, res) {
-  try {
+  if (req.method === 'GET' && req.query.action === 'getUsers') {
+    return await getUsers(req, res);
+  }
+    try {
     await connectToDatabase();
 
     if (req.method === 'POST') {

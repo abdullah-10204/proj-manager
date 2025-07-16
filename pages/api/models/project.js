@@ -50,7 +50,12 @@ const ProjectSchema = new mongoose.Schema({
     projectStatus: {
         type: String,
         required: false,
-        default:"Mobilised"
+        default: "Mobilised"
+    },
+    assignedUser: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: false
     },
     folders: [FolderSchema],
     checklist: [ChecklistItemSchema]

@@ -5,11 +5,12 @@ export const createProject = async (req, res) => {
   try {
     await connectToDatabase();
 
-    const { projectName } = req.body;
+    const { projectName, assignedUser } = req.body;
 
     const newProject = new Project({
-      projectName
-        });
+      projectName,
+      assignedUser: assignedUser || null
+    });
 
     const savedProject = await newProject.save();
     res.status(201).json(savedProject);
@@ -68,8 +69,19 @@ export const updateProjectStatus = async (req, res) => {
 export const getProjects = async (req, res) => {
   try {
     await connectToDatabase();
+    
+    const userEmail = req.user?.email; 
+    
+    let query = {};
+    
+    if (req.user?.role !== 'Admin') {
+      const user = await User.findOne({ email: userEmail });
+      if (user) {
+        query = { assignedUser: user._id };
+      }
+    }
 
-    const projects = await Project.find();
+    const projects = await Project.find(query);
     res.status(200).json(projects);
   } catch (error) {
     res.status(500).json({ error: error.message });

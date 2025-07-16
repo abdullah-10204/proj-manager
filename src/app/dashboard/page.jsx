@@ -163,6 +163,24 @@ const [newUser, setNewUser] = useState({
   role: "User" // Default role
 });
 const [userCreationError, setUserCreationError] = useState("");
+const [users, setUsers] = useState([]);
+const [selectedUser, setSelectedUser] = useState('');
+
+// Add this useEffect to fetch users
+useEffect(() => {
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get('/api/routes/user?action=getUsers');
+      setUsers(response.data);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
+  };
+  
+  if (role === 'Admin') {
+    fetchUsers();
+  }
+}, [role]);
 
 
 
@@ -361,7 +379,7 @@ const [userCreationError, setUserCreationError] = useState("");
   </button>
 )}
 
-            {role === "User" && (
+            {role === "Admin" && (
               <button
                 onClick={() => setShowCreatePopup(true)}
                 className="px-4 py-2 bg-gradient-to-r from-[#0000C0] to-[#0000C0] text-white hover:from-[#000080] hover:to-[#000080] rounded-lg transition flex items-center gap-2 shadow-md hover:shadow-lg flex-1 sm:flex-none justify-center"
@@ -572,6 +590,7 @@ const [userCreationError, setUserCreationError] = useState("");
                           </span>
                         </Link>
                       </td>
+                      
 
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
@@ -726,70 +745,94 @@ const [userCreationError, setUserCreationError] = useState("");
 
       {/* Create Project Popup */}
       {showCreatePopup && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl border border-[#003366] shadow-xl p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold text-[#003366] mb-4">
-              Create New Project
-            </h2>
-            <form
-              onSubmit={async (e) => {
-                e.preventDefault();
-                const name = e.target.projectName.value;
+  <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="bg-white rounded-xl border border-[#003366] shadow-xl p-6 w-full max-w-md">
+      <h2 className="text-xl font-bold text-[#003366] mb-4">
+        Create New Project
+      </h2>
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+          const name = e.target.projectName.value;
+          const assignedUser = e.target.assignedUser.value;
 
-                if (name.trim()) {
-                  try {
-                    await axios.post(
-                      "/api/routes/project?action=createProject",
-                      {
-                        projectName: name,
-                        projectStatus: "Mobilised",
-                      }
-                    );
-                    setShowCreatePopup(false);
-                    fetchProjects();
-                  } catch (error) {
-                    console.error("Error creating project:", error);
-                    alert("Failed to create project. Please try again.");
-                  }
+          if (name.trim()) {
+            try {
+              await axios.post(
+                "/api/routes/project?action=createProject",
+                {
+                  projectName: name,
+                  projectStatus: "Mobilised",
+                  assignedUser: assignedUser || undefined
                 }
-              }}
-            >
-              <div className="mb-4">
-                <label
-                  htmlFor="projectName"
-                  className="block text-sm font-medium text-[#003366] mb-1"
-                >
-                  Project Name *
-                </label>
-                <input
-                  type="text"
-                  id="projectName"
-                  className="w-full px-3 py-2 border border-[#003366] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0000C0]"
-                  placeholder="Enter project name"
-                  required
-                  autoFocus
-                />
-              </div>
-
-              <div className="flex justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setShowCreatePopup(false)}
-                  className="px-4 py-2 text-[#003366] hover:bg-[#E6F0F8] rounded-lg transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-gradient-to-r from-[#0000C0] to-[#0000C0] text-white hover:from-[#000080] hover:to-[#000080] rounded-lg transition"
-                >
-                  Create Project
-                </button>
-              </div>
-            </form>
-          </div>
+              );
+              setShowCreatePopup(false);
+              fetchProjects();
+            } catch (error) {
+              console.error("Error creating project:", error);
+              alert("Failed to create project. Please try again.");
+            }
+          }
+        }}
+      >
+        <div className="mb-4">
+          <label
+            htmlFor="projectName"
+            className="block text-sm font-medium text-[#003366] mb-1"
+          >
+            Project Name *
+          </label>
+          <input
+            type="text"
+            id="projectName"
+            className="w-full px-3 py-2 border border-[#003366] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0000C0]"
+            placeholder="Enter project name"
+            required
+            autoFocus
+          />
         </div>
-      )}
+        
+        {role === 'Admin' && (
+          <div className="mb-4">
+            <label
+              htmlFor="assignedUser"
+              className="block text-sm font-medium text-[#003366] mb-1"
+            >
+              Assign to User
+            </label>
+            <select
+              id="assignedUser"
+              className="w-full px-3 py-2 border border-[#003366] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0000C0]"
+            >
+              <option value="">Select a user</option>
+              {users.map(user => (
+                <option key={user._id} value={user._id}>
+                  {user.email} ({user.role})
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        <div className="flex justify-end gap-3">
+          <button
+            type="button"
+            onClick={() => setShowCreatePopup(false)}
+            className="px-4 py-2 text-[#003366] hover:bg-[#E6F0F8] rounded-lg transition"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="px-4 py-2 bg-gradient-to-r from-[#0000C0] to-[#0000C0] text-white hover:from-[#000080] hover:to-[#000080] rounded-lg transition"
+          >
+            Create Project
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
 
       {/* Delete Confirmation */}
       {projectToDelete && (
