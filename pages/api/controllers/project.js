@@ -57,9 +57,14 @@ export const createProject = async (req, res) => {
 
 export const updateProjectStatus = async (req, res) => {
   try {
-    const { projectId, projectIds, status } = req.body;
-    console.log(" projectId, projectIds, status", projectId, projectIds, status);
-    
+    await connectToDatabase();
+
+    const { projectId, projectIds, status, createdBy } = req.body;
+
+    if (!createdBy) {
+      return res.status(400).json({ message: "Admin email (createdBy) is required." });
+    }
+
     if ((!projectId && (!projectIds || !Array.isArray(projectIds))) || !status) {
       return res.status(400).json({
         success: false,
@@ -70,19 +75,23 @@ export const updateProjectStatus = async (req, res) => {
     const isBulkUpdate = projectIds && Array.isArray(projectIds);
     const idsToUpdate = isBulkUpdate ? projectIds : [projectId];
 
+    // First, filter only those projects that belong to the given admin
     const updateResult = await Project.updateMany(
-      { _id: { $in: idsToUpdate } },
+      { _id: { $in: idsToUpdate }, createdBy },
       { projectStatus: status }
     );
 
     if (updateResult.matchedCount === 0) {
       return res.status(404).json({
         success: false,
-        message: "No projects found with the provided ID(s)."
+        message: "No projects found with the provided ID(s) and admin email."
       });
     }
 
-    const updatedProjects = await Project.find({ _id: { $in: idsToUpdate } });
+    const updatedProjects = await Project.find({
+      _id: { $in: idsToUpdate },
+      createdBy
+    });
 
     return res.status(200).json({
       success: true,
@@ -102,6 +111,7 @@ export const updateProjectStatus = async (req, res) => {
 };
 
 
+
 // export const getProjects = async (req, res) => {
 //   try {
 //     await connectToDatabase();
@@ -118,15 +128,32 @@ export const getProjects = async (req, res) => {
   try {
     await connectToDatabase();
 
-    const adminEmail = req.query.createdBy; // Get admin email from query params
-    
-    // Only fetch projects created by this admin
-    const projects = await Project.find({ createdBy: adminEmail });
+    const { email, role } = req.query;
+
+    if (!email || !role) {
+      return res.status(400).json({ error: "Email and role are required." });
+    }
+
+    let adminEmailToMatch = email;
+
+    if (role !== "Admin") {
+      // User: Find the admin they belong to
+      const user = await User.findOne({ email });
+      if (!user) {
+        return res.status(404).json({ error: "User not found." });
+      }
+      adminEmailToMatch = user.createdBy; // Get the admin's email
+    }
+
+    // Find projects created by this admin
+    const projects = await Project.find({ createdBy: adminEmailToMatch });
+
     res.status(200).json(projects);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 // export const getProjects = async (req, res) => {
 //   try {

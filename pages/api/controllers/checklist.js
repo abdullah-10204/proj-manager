@@ -73,30 +73,40 @@ const updateChecklistAnswer = async (req, res) => {
 
 const getAllProjectsChecklists = async (req, res) => {
     try {
-        await connectToDatabase();
-
-        const projects = await Project.find()
-            .select('projectName checklist projectStatus');
-
-        res.status(200).json({
-            success: true,
-            count: projects.length,
-            data: projects.map(project => ({
-                projectName: project.projectName,
-                projectId: project._id,
-                checklist: project.checklist,
-                projectStatus: project.projectStatus,
-            }))
+      await connectToDatabase();
+  
+      const { createdBy } = req.body;
+  
+      if (!createdBy) {
+        return res.status(400).json({
+          success: false,
+          message: "Admin email (createdBy) is required."
         });
-
+      }
+  
+      const projects = await Project.find({ createdBy }).select(
+        "projectName checklist projectStatus"
+      );
+  
+      res.status(200).json({
+        success: true,
+        count: projects.length,
+        data: projects.map((project) => ({
+          projectName: project.projectName,
+          projectId: project._id,
+          checklist: project.checklist,
+          projectStatus: project.projectStatus,
+        })),
+      });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Server error',
-            error: error.message
-        });
+      res.status(500).json({
+        success: false,
+        message: "Server error",
+        error: error.message,
+      });
     }
-};
+  };
+  
 
 const askAiQuestion = async (req, res) => {
     try {

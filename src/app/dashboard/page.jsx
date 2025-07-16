@@ -224,29 +224,36 @@ export default function Dashboard() {
 
   const fetchAllChecklistItems = async () => {
     try {
+      const adminEmail = Cookies.get("email");
+  
       const response = await axios.post(
-        "/api/routes/checklist?action=getAllProjectsChecklists"
+        "/api/routes/checklist?action=getAllProjectsChecklists",
+        {
+          createdBy: adminEmail, // ✅ pass admin email here
+        }
       );
+  
       const projectsWithChecklists = Array.isArray(response.data.data)
         ? response.data.data
         : [];
-      console.log("projectsWithChecklists", projectsWithChecklists);
-
-      const normalizedProjects = projectsWithChecklists.map((project) => ({
-        ...project,
-        id: project.projectId || project._id,
-        projectName: project.projectName || `Project ${project._id}`,
-        checklist: project.checklist || [],
-        projectStatus: project.projectStatus,
-      }));
-
-      setProjectsDetail(normalizedProjects);
+  
+      setProjectsDetail(
+        projectsWithChecklists.map((project) => ({
+          ...project,
+          id: project.projectId || project._id,
+          projectName: project.projectName,
+          checklist: project.checklist || [],
+          projectStatus: project.projectStatus,
+        }))
+      );
+  
       setLoading(false);
     } catch (err) {
       console.error("Error fetching checklist items:", err);
       setLoading(false);
     }
   };
+  
 
   const handleDeleteProject = async (projectId) => {
     try {
@@ -282,20 +289,30 @@ export default function Dashboard() {
 
   const fetchProjects = async () => {
     try {
-      const response = await axios.get(
-        "/api/routes/project?action=getProjects"
-      );
+      const email = Cookies.get("email");
+      const role = Cookies.get("Role");
+  
+      const response = await axios.get("/api/routes/project?action=getProjects", {
+        params: {
+          email,
+          role,
+        },
+      });
+  
       setProjects(
         response.data.map((project) => ({
           ...project,
           projectStatus: project.projectStatus || "Mobilised",
         }))
       );
+  
       setLoading(false);
     } catch (err) {
+      console.error("Error fetching projects:", err);
       setLoading(false);
     }
   };
+  
 
   useEffect(() => {
     fetchAllChecklistItems();
@@ -820,6 +837,7 @@ export default function Dashboard() {
                         projectName: name,
                         projectStatus: "Mobilised",
                         assignedUser: assignedUser || undefined,
+                        createdBy: Cookies.get("email"),
                       }
                     );
                     setShowCreatePopup(false);
