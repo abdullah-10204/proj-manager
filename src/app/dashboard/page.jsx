@@ -15,7 +15,7 @@ import {
   FolderOpen,
   LogOut,
   Edit,
-  Sparkles
+  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import axios from "axios";
@@ -25,7 +25,7 @@ import Image from "next/image";
 
 const ProgressChart = ({ projectsDetail }) => {
   const statusOrder = {
-    "Mobilised": 0,
+    Mobilised: 0,
     "Data Received": 1,
     "Audit Completed": 2,
     "Internal Review of Audit Report": 3,
@@ -70,12 +70,12 @@ const ProgressChart = ({ projectsDetail }) => {
               item.status === "Audit Report Submitted"
                 ? "bg-gradient-to-r from-green-500 to-green-400"
                 : item.status === "Internal Review of Audit Report"
-                  ? "bg-gradient-to-r from-[#0000C0] to-[#0000C0]"
-                  : item.status === "Audit Completed"
-                    ? "bg-gradient-to-r from-amber-500 to-amber-400"
-                    : item.status === "Data Received"
-                      ? "bg-gradient-to-r from-purple-500 to-purple-400"
-                      : "bg-gradient-to-r from-gray-500 to-gray-400";
+                ? "bg-gradient-to-r from-[#0000C0] to-[#0000C0]"
+                : item.status === "Audit Completed"
+                ? "bg-gradient-to-r from-amber-500 to-amber-400"
+                : item.status === "Data Received"
+                ? "bg-gradient-to-r from-purple-500 to-purple-400"
+                : "bg-gradient-to-r from-gray-500 to-gray-400";
 
             return (
               <div key={item.id} className="group">
@@ -157,32 +157,60 @@ export default function Dashboard() {
   const [aiAnswer, setAiAnswer] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
   const [showCreateUserPopup, setShowCreateUserPopup] = useState(false);
-const [newUser, setNewUser] = useState({
-  email: "",
-  password: "",
-  role: "User" // Default role
-});
-const [userCreationError, setUserCreationError] = useState("");
-const [users, setUsers] = useState([]);
-const [selectedUser, setSelectedUser] = useState('');
+  const [newUser, setNewUser] = useState({
+    email: "",
+    password: "",
+    role: "User", // Default role
+  });
+  const [userCreationError, setUserCreationError] = useState("");
+  const [selectedUser, setSelectedUser] = useState("");
+  const [users, setUsers] = useState([]);
+const currentAdminEmail = Cookies.get("email"); // Get current admin's email
 
-// Add this useEffect to fetch users
+const fetchUsers = async () => {
+  try {
+    const response = await axios.get('/api/routes/user?action=getUsers', {
+      params: {
+        createdBy: currentAdminEmail // Only fetch users created by this admin
+      }
+    });
+    setUsers(response.data);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+  }
+};
+
+// Call this in your useEffect
 useEffect(() => {
-  const fetchUsers = async () => {
-    try {
-      const response = await axios.get('/api/routes/user?action=getUsers');
-      setUsers(response.data);
-    } catch (error) {
-      console.error('Error fetching users:', error);
-    }
-  };
-  
   if (role === 'Admin') {
     fetchUsers();
   }
-}, [role]);
+}, [role, currentAdminEmail]); // Add currentAdminEmail to dependencies
 
-
+  // In your Dashboard component
+const handleCreateUser = async (e) => {
+  e.preventDefault();
+  try {
+    const adminEmail = Cookies.get("email"); // Assuming you store the admin's email in cookies
+    const response = await axios.post("/api/routes/user", {
+      ...newUser,
+      createdBy: adminEmail // Pass the admin's email
+    });
+    
+    if (response.data.success) {
+      setShowCreateUserPopup(false);
+      setNewUser({ email: "", password: "", role: "User" });
+      setUserCreationError("");
+      // Refresh users list
+      const usersResponse = await axios.get('/api/routes/user?action=getUsers');
+      setUsers(usersResponse.data);
+    } else {
+      setUserCreationError(response.data.message || "Failed to create user");
+    }
+  } catch (error) {
+    setUserCreationError(error.response?.data?.message || "Failed to create user");
+  }
+};
 
   const handleLogout = () => {
     Cookies.remove("isAuthenticated");
@@ -323,9 +351,12 @@ useEffect(() => {
 
     try {
       setAiLoading(true);
-      const response = await axios.post("/api/routes/checklist?action=askAiQuestionAboutAllProject", {
-        question: aiQuestion
-      });
+      const response = await axios.post(
+        "/api/routes/checklist?action=askAiQuestionAboutAllProject",
+        {
+          question: aiQuestion,
+        }
+      );
 
       setAiAnswer(response.data.answer);
     } catch (error) {
@@ -369,15 +400,15 @@ useEffect(() => {
               <span className="hidden sm:inline">Ask AI</span>
             </button>
 
-{role === "Admin" && (
-  <button
-    onClick={() => setShowCreateUserPopup(true)}
-    className="flex items-center gap-2 px-3 py-2 text-sm text-white hover:bg-[#0000C0] rounded-lg transition"
-  >
-    <Plus size={16} />
-    <span className="hidden sm:inline">Create User</span>
-  </button>
-)}
+            {role === "Admin" && (
+              <button
+                onClick={() => setShowCreateUserPopup(true)}
+                className="flex items-center gap-2 px-3 py-2 text-sm text-white hover:bg-[#0000C0] rounded-lg transition"
+              >
+                <Plus size={16} />
+                <span className="hidden sm:inline">Create User</span>
+              </button>
+            )}
 
             {role === "Admin" && (
               <button
@@ -576,10 +607,11 @@ useEffect(() => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <Link
-                          href={`project/?projectid=${project._id
-                            }&projectDetails=${encodeURIComponent(
-                              project.projectName
-                            )}`}
+                          href={`project/?projectid=${
+                            project._id
+                          }&projectDetails=${encodeURIComponent(
+                            project.projectName
+                          )}`}
                           className="flex items-center space-x-3 group"
                         >
                           <div className="bg-[#E6F0F8] p-2 rounded-lg">
@@ -590,7 +622,6 @@ useEffect(() => {
                           </span>
                         </Link>
                       </td>
-                      
 
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
@@ -611,16 +642,16 @@ useEffect(() => {
                           )}
                           {project.projectStatus ===
                             "Internal Review of Audit Report" && (
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#E6F0F8] text-[#003366]">
-                                Internal Review
-                              </span>
-                            )}
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#E6F0F8] text-[#003366]">
+                              Internal Review
+                            </span>
+                          )}
                           {project.projectStatus ===
                             "Audit Report Submitted" && (
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                Report Submitted
-                              </span>
-                            )}
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                              Report Submitted
+                            </span>
+                          )}
 
                           {role === "User" && (
                             <button
@@ -659,10 +690,11 @@ useEffect(() => {
                           )}
 
                           <Link
-                            href={`project/?projectid=${project._id
-                              }&projectDetails=${encodeURIComponent(
-                                project.projectName
-                              )}`}
+                            href={`project/?projectid=${
+                              project._id
+                            }&projectDetails=${encodeURIComponent(
+                              project.projectName
+                            )}`}
                             className="text-[#0000C0] hover:text-[#003366] p-1 rounded-full hover:bg-[#E6F0F8]"
                             title="View project"
                           >
@@ -704,10 +736,11 @@ useEffect(() => {
                 <button
                   onClick={() => paginate(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
-                  className={`px-3 py-1 rounded-md ${currentPage === 1
-                    ? "bg-[#E6F0F8] text-[#003366] cursor-not-allowed"
-                    : "bg-[#E6F0F8] text-[#003366] hover:bg-[#D0E0F0]"
-                    }`}
+                  className={`px-3 py-1 rounded-md ${
+                    currentPage === 1
+                      ? "bg-[#E6F0F8] text-[#003366] cursor-not-allowed"
+                      : "bg-[#E6F0F8] text-[#003366] hover:bg-[#D0E0F0]"
+                  }`}
                 >
                   Previous
                 </button>
@@ -716,10 +749,11 @@ useEffect(() => {
                     <button
                       key={number}
                       onClick={() => paginate(number)}
-                      className={`px-3 py-1 rounded-md min-w-[36px] ${currentPage === number
-                        ? "bg-[#0000C0] text-white"
-                        : "bg-[#E6F0F8] text-[#003366] hover:bg-[#D0E0F0]"
-                        }`}
+                      className={`px-3 py-1 rounded-md min-w-[36px] ${
+                        currentPage === number
+                          ? "bg-[#0000C0] text-white"
+                          : "bg-[#E6F0F8] text-[#003366] hover:bg-[#D0E0F0]"
+                      }`}
                     >
                       {number}
                     </button>
@@ -730,10 +764,11 @@ useEffect(() => {
                     paginate(Math.min(totalPages, currentPage + 1))
                   }
                   disabled={currentPage === totalPages}
-                  className={`px-3 py-1 rounded-md ${currentPage === totalPages
-                    ? "bg-[#E6F0F8] text-[#003366] cursor-not-allowed"
-                    : "bg-[#E6F0F8] text-[#003366] hover:bg-[#D0E0F0]"
-                    }`}
+                  className={`px-3 py-1 rounded-md ${
+                    currentPage === totalPages
+                      ? "bg-[#E6F0F8] text-[#003366] cursor-not-allowed"
+                      : "bg-[#E6F0F8] text-[#003366] hover:bg-[#D0E0F0]"
+                  }`}
                 >
                   Next
                 </button>
@@ -745,94 +780,94 @@ useEffect(() => {
 
       {/* Create Project Popup */}
       {showCreatePopup && (
-  <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div className="bg-white rounded-xl border border-[#003366] shadow-xl p-6 w-full max-w-md">
-      <h2 className="text-xl font-bold text-[#003366] mb-4">
-        Create New Project
-      </h2>
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault();
-          const name = e.target.projectName.value;
-          const assignedUser = e.target.assignedUser.value;
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl border border-[#003366] shadow-xl p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold text-[#003366] mb-4">
+              Create New Project
+            </h2>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const name = e.target.projectName.value;
+                const assignedUser = e.target.assignedUser.value;
 
-          if (name.trim()) {
-            try {
-              await axios.post(
-                "/api/routes/project?action=createProject",
-                {
-                  projectName: name,
-                  projectStatus: "Mobilised",
-                  assignedUser: assignedUser || undefined
+                if (name.trim()) {
+                  try {
+                    await axios.post(
+                      "/api/routes/project?action=createProject",
+                      {
+                        projectName: name,
+                        projectStatus: "Mobilised",
+                        assignedUser: assignedUser || undefined,
+                      }
+                    );
+                    setShowCreatePopup(false);
+                    fetchProjects();
+                  } catch (error) {
+                    console.error("Error creating project:", error);
+                    alert("Failed to create project. Please try again.");
+                  }
                 }
-              );
-              setShowCreatePopup(false);
-              fetchProjects();
-            } catch (error) {
-              console.error("Error creating project:", error);
-              alert("Failed to create project. Please try again.");
-            }
-          }
-        }}
-      >
-        <div className="mb-4">
-          <label
-            htmlFor="projectName"
-            className="block text-sm font-medium text-[#003366] mb-1"
-          >
-            Project Name *
-          </label>
-          <input
-            type="text"
-            id="projectName"
-            className="w-full px-3 py-2 border border-[#003366] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0000C0]"
-            placeholder="Enter project name"
-            required
-            autoFocus
-          />
-        </div>
-        
-        {role === 'Admin' && (
-          <div className="mb-4">
-            <label
-              htmlFor="assignedUser"
-              className="block text-sm font-medium text-[#003366] mb-1"
+              }}
             >
-              Assign to User
-            </label>
-            <select
-              id="assignedUser"
-              className="w-full px-3 py-2 border border-[#003366] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0000C0]"
-            >
-              <option value="">Select a user</option>
-              {users.map(user => (
-                <option key={user._id} value={user._id}>
-                  {user.email} ({user.role})
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
+              <div className="mb-4">
+                <label
+                  htmlFor="projectName"
+                  className="block text-sm font-medium text-[#003366] mb-1"
+                >
+                  Project Name *
+                </label>
+                <input
+                  type="text"
+                  id="projectName"
+                  className="w-full px-3 py-2 border border-[#003366] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0000C0]"
+                  placeholder="Enter project name"
+                  required
+                  autoFocus
+                />
+              </div>
 
-        <div className="flex justify-end gap-3">
-          <button
-            type="button"
-            onClick={() => setShowCreatePopup(false)}
-            className="px-4 py-2 text-[#003366] hover:bg-[#E6F0F8] rounded-lg transition"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="px-4 py-2 bg-gradient-to-r from-[#0000C0] to-[#0000C0] text-white hover:from-[#000080] hover:to-[#000080] rounded-lg transition"
-          >
-            Create Project
-          </button>
-        </div>
-      </form>
-    </div>
+              {role === 'Admin' && (
+  <div className="mb-4">
+    <label
+      htmlFor="assignedUser"
+      className="block text-sm font-medium text-[#003366] mb-1"
+    >
+      Assign to User
+    </label>
+    <select
+      id="assignedUser"
+      className="w-full px-3 py-2 border border-[#003366] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0000C0]"
+    >
+      <option value="">Select a user</option>
+      {users.map(user => (
+        <option key={user._id} value={user._id}>
+          {user.email} ({user.role})
+        </option>
+      ))}
+    </select>
   </div>
 )}
+
+              <div className="flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowCreatePopup(false)}
+                  className="px-4 py-2 text-[#003366] hover:bg-[#E6F0F8] rounded-lg transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-gradient-to-r from-[#0000C0] to-[#0000C0] text-white hover:from-[#000080] hover:to-[#000080] rounded-lg transition"
+                >
+                  Create Project
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Delete Confirmation */}
       {projectToDelete && (
@@ -880,10 +915,11 @@ useEffect(() => {
               ].map((status) => (
                 <div
                   key={status}
-                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${projectToEdit.projectStatus === status
-                    ? "border-[#0000C0] bg-[#E6F0F8]"
-                    : "border-[#E6F0F8] hover:bg-[#F5F9FC]"
-                    }`}
+                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                    projectToEdit.projectStatus === status
+                      ? "border-[#0000C0] bg-[#E6F0F8]"
+                      : "border-[#E6F0F8] hover:bg-[#F5F9FC]"
+                  }`}
                   onClick={() =>
                     setProjectToEdit({
                       ...projectToEdit,
@@ -963,10 +999,11 @@ useEffect(() => {
               ].map((status) => (
                 <div
                   key={status}
-                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${bulkStatus === status
-                    ? "border-[#0000C0] bg-[#E6F0F8]"
-                    : "border-[#E6F0F8] hover:bg-[#F5F9FC]"
-                    }`}
+                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                    bulkStatus === status
+                      ? "border-[#0000C0] bg-[#E6F0F8]"
+                      : "border-[#E6F0F8] hover:bg-[#F5F9FC]"
+                  }`}
                   onClick={() => setBulkStatus(status)}
                 >
                   <div className="flex items-center gap-3">
@@ -1016,7 +1053,10 @@ useEffect(() => {
             </h2>
 
             <div className="mb-4">
-              <label htmlFor="aiQuestion" className="block text-sm font-medium text-[#003366] mb-1">
+              <label
+                htmlFor="aiQuestion"
+                className="block text-sm font-medium text-[#003366] mb-1"
+              >
                 Your Question *
               </label>
               <textarea
@@ -1032,7 +1072,9 @@ useEffect(() => {
 
             {aiAnswer && (
               <div className="mb-4 p-4 bg-[#E6F0F8] rounded-lg">
-                <h3 className="font-medium text-[#003366] mb-2">AI Response:</h3>
+                <h3 className="font-medium text-[#003366] mb-2">
+                  AI Response:
+                </h3>
                 <p className="text-[#003366] whitespace-pre-wrap">{aiAnswer}</p>
               </div>
             )}
@@ -1056,9 +1098,25 @@ useEffect(() => {
               >
                 {aiLoading ? (
                   <>
-                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <svg
+                      className="animate-spin h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
                     </svg>
                     Processing...
                   </>
@@ -1074,91 +1132,107 @@ useEffect(() => {
         </div>
       )}
 
-{showCreateUserPopup && (
-  <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div className="bg-white rounded-xl border border-[#003366] shadow-xl p-6 w-full max-w-md">
-      <h2 className="text-xl font-bold text-[#003366] mb-4">
-        Create New User
-      </h2>
-      {userCreationError && (
-        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
-          {userCreationError}
+      {showCreateUserPopup && (
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl border border-[#003366] shadow-xl p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold text-[#003366] mb-4">
+              Create New User
+            </h2>
+            {userCreationError && (
+              <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
+                {userCreationError}
+              </div>
+            )}
+            <form onSubmit={async (e) => {
+  e.preventDefault();
+  try {
+    const adminEmail = Cookies.get("email"); // Get the admin's email from cookies
+    const response = await axios.post("/api/routes/user", {
+      email: newUser.email,
+      password: newUser.password,
+      role: newUser.role,
+      createdBy: adminEmail // Include the admin's email
+    });
+    
+    if (response.data.success) {
+      setShowCreateUserPopup(false);
+      setNewUser({ email: "", password: "", role: "User" });
+      setUserCreationError("");
+      // Refresh users list
+      const usersResponse = await axios.get('/api/routes/user?action=getUsers');
+      setUsers(usersResponse.data);
+    } else {
+      setUserCreationError(response.data.message || "Failed to create user");
+    }
+  } catch (error) {
+    setUserCreationError(error.response?.data?.message || "Failed to create user");
+  }
+}}>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-[#003366] mb-1">
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  className="w-full px-3 py-2 border border-[#003366] rounded-md"
+                  value={newUser.email}
+                  onChange={(e) =>
+                    setNewUser({ ...newUser, email: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-[#003366] mb-1">
+                  Password *
+                </label>
+                <input
+                  type="password"
+                  className="w-full px-3 py-2 border border-[#003366] rounded-md"
+                  value={newUser.password}
+                  onChange={(e) =>
+                    setNewUser({ ...newUser, password: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-[#003366] mb-1">
+                  Role *
+                </label>
+                <select
+                  className="w-full px-3 py-2 border border-[#003366] rounded-md"
+                  value={newUser.role}
+                  onChange={(e) =>
+                    setNewUser({ ...newUser, role: e.target.value })
+                  }
+                >
+                  <option value="User">User</option>
+                  <option value="Admin">Admin</option>
+                </select>
+              </div>
+              <div className="flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowCreateUserPopup(false);
+                    setUserCreationError("");
+                  }}
+                  className="px-4 py-2 text-[#003366] hover:bg-[#E6F0F8] rounded-lg transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-gradient-to-r from-[#0000C0] to-[#0000C0] text-white hover:from-[#000080] hover:to-[#000080] rounded-lg transition"
+                >
+                  Create User
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
-      <form onSubmit={async (e) => {
-        e.preventDefault();
-        try {
-          const response = await axios.post("/api/routes/user?action=create", newUser);
-          if (response.data.success) {
-            setShowCreateUserPopup(false);
-            setNewUser({ email: "", password: "", role: "User" });
-            setUserCreationError("");
-          } else {
-            setUserCreationError(response.data.message || "Failed to create user");
-          }
-        } catch (error) {
-          setUserCreationError(error.response?.data?.message || "Failed to create user");
-        }
-      }}>
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-[#003366] mb-1">
-            Email *
-          </label>
-          <input
-            type="email"
-            className="w-full px-3 py-2 border border-[#003366] rounded-md"
-            value={newUser.email}
-            onChange={(e) => setNewUser({...newUser, email: e.target.value})}
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-[#003366] mb-1">
-            Password *
-          </label>
-          <input
-            type="password"
-            className="w-full px-3 py-2 border border-[#003366] rounded-md"
-            value={newUser.password}
-            onChange={(e) => setNewUser({...newUser, password: e.target.value})}
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-[#003366] mb-1">
-            Role *
-          </label>
-          <select
-            className="w-full px-3 py-2 border border-[#003366] rounded-md"
-            value={newUser.role}
-            onChange={(e) => setNewUser({...newUser, role: e.target.value})}
-          >
-            <option value="User">User</option>
-            <option value="Admin">Admin</option>
-          </select>
-        </div>
-        <div className="flex justify-end gap-3">
-          <button
-            type="button"
-            onClick={() => {
-              setShowCreateUserPopup(false);
-              setUserCreationError("");
-            }}
-            className="px-4 py-2 text-[#003366] hover:bg-[#E6F0F8] rounded-lg transition"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="px-4 py-2 bg-gradient-to-r from-[#0000C0] to-[#0000C0] text-white hover:from-[#000080] hover:to-[#000080] rounded-lg transition"
-          >
-            Create User
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-)}
     </div>
   );
 }

@@ -63,19 +63,27 @@ function SigninUser() {
         const expires = new Date();
         expires.setDate(expires.getDate() + 7);
   
-        Cookies.set("Role", data.role, {
-          expires,
-          secure: true,
-          sameSite: "strict",
-        });
-  
-        Cookies.set("isAuthenticated", "true", {
-          expires,
-          secure: true,
-          sameSite: "strict",
-        });
-  
-        router.push("/dashboard");
+ // In your SigninUser component's handleSubmit function
+Cookies.set("Role", data.role, {
+  expires,
+  secure: true,
+  sameSite: "strict",
+});
+
+Cookies.set("isAuthenticated", "true", {
+  expires,
+  secure: true,
+  sameSite: "strict",
+});
+
+// Add this line to store the email
+Cookies.set("email", formData.email, {
+  expires,
+  secure: true,
+  sameSite: "strict",
+});
+
+router.push("/dashboard");
       }
     } catch (err) {
       setErrors({ submit: "Something went wrong. Try again later." });
