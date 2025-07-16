@@ -23,9 +23,18 @@ export default async function handler(req, res) {
 
     try {
         if (req.method === "POST") {
+            // Handle createProject with admin email
+            if (action === "createProject") {
+                const adminEmail = req.cookies.email; // Get admin email from cookies
+                if (!adminEmail) {
+                    return res.status(400).json({ message: "Admin email not found" });
+                }
+                req.body.createdBy = adminEmail; // Add to request body
+                return await createProject(req, res);
+            }
+
+            // Handle all other POST actions normally
             switch (action) {
-                case "createProject":
-                    return await createProject(req, res);
                 case "addSubfolder":
                     return await addSubfolder(req, res);
                 case "uploadFileToSubfolder":
@@ -48,9 +57,18 @@ export default async function handler(req, res) {
                     return res.status(400).json({ message: "Invalid action parameter" });
             }
         } else if (req.method === "GET") {
+            // Handle getProjects with admin email filter
+            if (action === "getProjects") {
+                const adminEmail = req.cookies.email; // Get admin email from cookies
+                if (!adminEmail) {
+                    return res.status(400).json({ message: "Admin email not found" });
+                }
+                req.query.createdBy = adminEmail; // Add to query params
+                return await getProjects(req, res);
+            }
+
+            // Handle all other GET actions normally
             switch (action) {
-                case "getProjects":
-                    return await getProjects(req, res);
                 case "getProjectById":
                     return await getProjectById(req, res);
                 case "getSubfolderFiles":

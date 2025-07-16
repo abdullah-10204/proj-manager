@@ -57,6 +57,10 @@ const ProjectSchema = new mongoose.Schema({
         ref: 'User',
         required: false
     },
+    createdBy: {  // Add this field
+        type: String,
+        required: true
+    },
     folders: [FolderSchema],
     checklist: [ChecklistItemSchema]
 }, { timestamps: true });

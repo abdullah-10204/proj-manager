@@ -1,15 +1,34 @@
 import connectToDatabase from '../config/db';
 import Project from '../models/project';
 
+// export const createProject = async (req, res) => {
+//   try {
+//     await connectToDatabase();
+
+//     const { projectName, assignedUser } = req.body;
+
+//     const newProject = new Project({
+//       projectName,
+//       assignedUser: assignedUser || null
+//     });
+
+//     const savedProject = await newProject.save();
+//     res.status(201).json(savedProject);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
+
 export const createProject = async (req, res) => {
   try {
     await connectToDatabase();
 
-    const { projectName, assignedUser } = req.body;
+    const { projectName } = req.body;
+    const adminEmail = req.body.createdBy; // Get admin email from request
 
     const newProject = new Project({
       projectName,
-      assignedUser: assignedUser || null
+      createdBy: adminEmail // Store the admin's email who created the project
     });
 
     const savedProject = await newProject.save();
@@ -18,6 +37,23 @@ export const createProject = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// export const createProject = async (req, res) => {
+//   try {
+//     await connectToDatabase();
+
+//     const { projectName } = req.body;
+
+//     const newProject = new Project({
+//       projectName
+//         });
+
+//     const savedProject = await newProject.save();
+//     res.status(201).json(savedProject);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
 
 export const updateProjectStatus = async (req, res) => {
   try {
@@ -66,27 +102,53 @@ export const updateProjectStatus = async (req, res) => {
 };
 
 
+// export const getProjects = async (req, res) => {
+//   try {
+//     await connectToDatabase();
+
+//     const projects = await Project.find();
+//     res.status(200).json(projects);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
+
+
 export const getProjects = async (req, res) => {
   try {
     await connectToDatabase();
-    
-    const userEmail = req.user?.email; 
-    
-    let query = {};
-    
-    if (req.user?.role !== 'Admin') {
-      const user = await User.findOne({ email: userEmail });
-      if (user) {
-        query = { assignedUser: user._id };
-      }
-    }
 
-    const projects = await Project.find(query);
+    const adminEmail = req.query.createdBy; // Get admin email from query params
+    
+    // Only fetch projects created by this admin
+    const projects = await Project.find({ createdBy: adminEmail });
     res.status(200).json(projects);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
+// export const getProjects = async (req, res) => {
+//   try {
+//     await connectToDatabase();
+    
+//     const userEmail = req.user?.email; 
+    
+//     let query = {};
+    
+//     if (req.user?.role !== 'Admin') {
+//       const user = await User.findOne({ email: userEmail });
+//       if (user) {
+//         query = { assignedUser: user._id };
+//       }
+//     }
+
+//     const projects = await Project.find(query);
+//     res.status(200).json(projects);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
 
 export const getProjectById = async (req, res) => {
   try {

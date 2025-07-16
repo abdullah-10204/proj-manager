@@ -165,52 +165,56 @@ export default function Dashboard() {
   const [userCreationError, setUserCreationError] = useState("");
   const [selectedUser, setSelectedUser] = useState("");
   const [users, setUsers] = useState([]);
-const currentAdminEmail = Cookies.get("email"); // Get current admin's email
+  const currentAdminEmail = Cookies.get("email"); // Get current admin's email
 
-const fetchUsers = async () => {
-  try {
-    const response = await axios.get('/api/routes/user?action=getUsers', {
-      params: {
-        createdBy: currentAdminEmail // Only fetch users created by this admin
-      }
-    });
-    setUsers(response.data);
-  } catch (error) {
-    console.error('Error fetching users:', error);
-  }
-};
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get("/api/routes/user?action=getUsers", {
+        params: {
+          createdBy: currentAdminEmail, // Only fetch users created by this admin
+        },
+      });
+      setUsers(response.data);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
 
-// Call this in your useEffect
-useEffect(() => {
-  if (role === 'Admin') {
-    fetchUsers();
-  }
-}, [role, currentAdminEmail]); // Add currentAdminEmail to dependencies
+  // Call this in your useEffect
+  useEffect(() => {
+    if (role === "Admin") {
+      fetchUsers();
+    }
+  }, [role, currentAdminEmail]); // Add currentAdminEmail to dependencies
 
   // In your Dashboard component
-const handleCreateUser = async (e) => {
-  e.preventDefault();
-  try {
-    const adminEmail = Cookies.get("email"); // Assuming you store the admin's email in cookies
-    const response = await axios.post("/api/routes/user", {
-      ...newUser,
-      createdBy: adminEmail // Pass the admin's email
-    });
-    
-    if (response.data.success) {
-      setShowCreateUserPopup(false);
-      setNewUser({ email: "", password: "", role: "User" });
-      setUserCreationError("");
-      // Refresh users list
-      const usersResponse = await axios.get('/api/routes/user?action=getUsers');
-      setUsers(usersResponse.data);
-    } else {
-      setUserCreationError(response.data.message || "Failed to create user");
+  const handleCreateUser = async (e) => {
+    e.preventDefault();
+    try {
+      const adminEmail = Cookies.get("email"); // Assuming you store the admin's email in cookies
+      const response = await axios.post("/api/routes/user", {
+        ...newUser,
+        createdBy: adminEmail, // Pass the admin's email
+      });
+
+      if (response.data.success) {
+        setShowCreateUserPopup(false);
+        setNewUser({ email: "", password: "", role: "User" });
+        setUserCreationError("");
+        // Refresh users list
+        const usersResponse = await axios.get(
+          "/api/routes/user?action=getUsers"
+        );
+        setUsers(usersResponse.data);
+      } else {
+        setUserCreationError(response.data.message || "Failed to create user");
+      }
+    } catch (error) {
+      setUserCreationError(
+        error.response?.data?.message || "Failed to create user"
+      );
     }
-  } catch (error) {
-    setUserCreationError(error.response?.data?.message || "Failed to create user");
-  }
-};
+  };
 
   const handleLogout = () => {
     Cookies.remove("isAuthenticated");
@@ -258,6 +262,23 @@ const handleCreateUser = async (e) => {
       alert("Failed to delete project");
     }
   };
+
+  // const fetchProjects = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       "/api/routes/project?action=getProjects"
+  //     );
+  //     setProjects(
+  //       response.data.map((project) => ({
+  //         ...project,
+  //         projectStatus: project.projectStatus || "Mobilised",
+  //       }))
+  //     );
+  //     setLoading(false);
+  //   } catch (err) {
+  //     setLoading(false);
+  //   }
+  // };
 
   const fetchProjects = async () => {
     try {
@@ -827,27 +848,27 @@ const handleCreateUser = async (e) => {
                 />
               </div>
 
-              {role === 'Admin' && (
-  <div className="mb-4">
-    <label
-      htmlFor="assignedUser"
-      className="block text-sm font-medium text-[#003366] mb-1"
-    >
-      Assign to User
-    </label>
-    <select
-      id="assignedUser"
-      className="w-full px-3 py-2 border border-[#003366] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0000C0]"
-    >
-      <option value="">Select a user</option>
-      {users.map(user => (
-        <option key={user._id} value={user._id}>
-          {user.email} ({user.role})
-        </option>
-      ))}
-    </select>
-  </div>
-)}
+              {role === "Admin" && (
+                <div className="mb-4">
+                  <label
+                    htmlFor="assignedUser"
+                    className="block text-sm font-medium text-[#003366] mb-1"
+                  >
+                    Assign to User
+                  </label>
+                  <select
+                    id="assignedUser"
+                    className="w-full px-3 py-2 border border-[#003366] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0000C0]"
+                  >
+                    <option value="">Select a user</option>
+                    {users.map((user) => (
+                      <option key={user._id} value={user._id}>
+                        {user.email} ({user.role})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div className="flex justify-end gap-3">
                 <button
@@ -1143,31 +1164,39 @@ const handleCreateUser = async (e) => {
                 {userCreationError}
               </div>
             )}
-            <form onSubmit={async (e) => {
-  e.preventDefault();
-  try {
-    const adminEmail = Cookies.get("email"); // Get the admin's email from cookies
-    const response = await axios.post("/api/routes/user", {
-      email: newUser.email,
-      password: newUser.password,
-      role: newUser.role,
-      createdBy: adminEmail // Include the admin's email
-    });
-    
-    if (response.data.success) {
-      setShowCreateUserPopup(false);
-      setNewUser({ email: "", password: "", role: "User" });
-      setUserCreationError("");
-      // Refresh users list
-      const usersResponse = await axios.get('/api/routes/user?action=getUsers');
-      setUsers(usersResponse.data);
-    } else {
-      setUserCreationError(response.data.message || "Failed to create user");
-    }
-  } catch (error) {
-    setUserCreationError(error.response?.data?.message || "Failed to create user");
-  }
-}}>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                try {
+                  const adminEmail = Cookies.get("email"); // Get the admin's email from cookies
+                  const response = await axios.post("/api/routes/user", {
+                    email: newUser.email,
+                    password: newUser.password,
+                    role: newUser.role,
+                    createdBy: adminEmail, // Include the admin's email
+                  });
+
+                  if (response.data.success) {
+                    setShowCreateUserPopup(false);
+                    setNewUser({ email: "", password: "", role: "User" });
+                    setUserCreationError("");
+                    // Refresh users list
+                    const usersResponse = await axios.get(
+                      "/api/routes/user?action=getUsers"
+                    );
+                    setUsers(usersResponse.data);
+                  } else {
+                    setUserCreationError(
+                      response.data.message || "Failed to create user"
+                    );
+                  }
+                } catch (error) {
+                  setUserCreationError(
+                    error.response?.data?.message || "Failed to create user"
+                  );
+                }
+              }}
+            >
               <div className="mb-4">
                 <label className="block text-sm font-medium text-[#003366] mb-1">
                   Email *
@@ -1208,7 +1237,6 @@ const handleCreateUser = async (e) => {
                   }
                 >
                   <option value="User">User</option>
-                  <option value="Admin">Admin</option>
                 </select>
               </div>
               <div className="flex justify-end gap-3">
