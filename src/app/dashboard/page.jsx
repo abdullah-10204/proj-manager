@@ -258,9 +258,10 @@ export default function Dashboard() {
   const handleDeleteProject = async (projectId) => {
     try {
       await axios.post("/api/routes/project?action=deleteProject", {
-        projectId: projectId,
+        projectId,
+        email: Cookies.get("email"),
       });
-
+  
       setProjects(projects.filter((project) => project._id !== projectId));
       setProjectToDelete(null);
       fetchProjects();
@@ -269,23 +270,8 @@ export default function Dashboard() {
       alert("Failed to delete project");
     }
   };
+  
 
-  // const fetchProjects = async () => {
-  //   try {
-  //     const response = await axios.get(
-  //       "/api/routes/project?action=getProjects"
-  //     );
-  //     setProjects(
-  //       response.data.map((project) => ({
-  //         ...project,
-  //         projectStatus: project.projectStatus || "Mobilised",
-  //       }))
-  //     );
-  //     setLoading(false);
-  //   } catch (err) {
-  //     setLoading(false);
-  //   }
-  // };
 
   const fetchProjects = async () => {
     try {
@@ -364,13 +350,14 @@ export default function Dashboard() {
       alert("Please select at least one project");
       return;
     }
-
+  
     try {
       await axios.post("/api/routes/project?action=updateProjectStatus", {
         projectIds: selectedProjects,
         status: bulkStatus,
+        createdBy: Cookies.get("email"),
       });
-
+  
       fetchProjects();
       fetchAllChecklistItems();
       setSelectedProjects([]);
@@ -380,6 +367,7 @@ export default function Dashboard() {
       alert("Failed to update project status");
     }
   };
+  
 
   const handleAskAI = async () => {
     if (!aiQuestion.trim()) {
@@ -983,7 +971,10 @@ export default function Dashboard() {
                       <Archive className="text-green-500" size={18} />
                     )}
                     <span className="font-medium text-[#003366]">{status}</span>
+                    
                   </div>
+
+                  
                 </div>
               ))}
             </div>
@@ -1002,6 +993,8 @@ export default function Dashboard() {
                       {
                         projectId: projectToEdit._id,
                         status: projectToEdit.projectStatus,
+                        createdBy: Cookies.get("email"),
+
                       }
                     );
                     fetchProjects();
@@ -1063,8 +1056,32 @@ export default function Dashboard() {
                     )}
                     <span className="font-medium text-[#003366]">{status}</span>
                   </div>
+
+                  
                 </div>
+                
               ))}
+              {role === "Admin" && (
+                <div className="mb-4">
+                  <label
+                    htmlFor="assignedUser"
+                    className="block text-sm font-medium text-[#003366] mb-1"
+                  >
+                    Assign to User
+                  </label>
+                  <select
+                    id="assignedUser"
+                    className="w-full px-3 py-2 border border-[#003366] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0000C0]"
+                  >
+                    <option value="">Select a user</option>
+                    {users.map((user) => (
+                      <option key={user._id} value={user._id}>
+                        {user.email} ({user.role})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
             <div className="flex justify-end gap-3">
               <button
