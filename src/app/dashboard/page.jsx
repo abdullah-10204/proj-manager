@@ -225,18 +225,18 @@ export default function Dashboard() {
   const fetchAllChecklistItems = async () => {
     try {
       const adminEmail = Cookies.get("email");
-  
+
       const response = await axios.post(
         "/api/routes/checklist?action=getAllProjectsChecklists",
         {
           createdBy: adminEmail, // ✅ pass admin email here
         }
       );
-  
+
       const projectsWithChecklists = Array.isArray(response.data.data)
         ? response.data.data
         : [];
-  
+
       setProjectsDetail(
         projectsWithChecklists.map((project) => ({
           ...project,
@@ -246,14 +246,13 @@ export default function Dashboard() {
           projectStatus: project.projectStatus,
         }))
       );
-  
+
       setLoading(false);
     } catch (err) {
       console.error("Error fetching checklist items:", err);
       setLoading(false);
     }
   };
-  
 
   const handleDeleteProject = async (projectId) => {
     try {
@@ -261,7 +260,7 @@ export default function Dashboard() {
         projectId,
         email: Cookies.get("email"),
       });
-  
+
       setProjects(projects.filter((project) => project._id !== projectId));
       setProjectToDelete(null);
       fetchProjects();
@@ -270,35 +269,35 @@ export default function Dashboard() {
       alert("Failed to delete project");
     }
   };
-  
-
 
   const fetchProjects = async () => {
     try {
       const email = Cookies.get("email");
       const role = Cookies.get("Role");
-  
-      const response = await axios.get("/api/routes/project?action=getProjects", {
-        params: {
-          email,
-          role,
-        },
-      });
-  
+
+      const response = await axios.get(
+        "/api/routes/project?action=getProjects",
+        {
+          params: {
+            email,
+            role,
+          },
+        }
+      );
+
       setProjects(
         response.data.map((project) => ({
           ...project,
           projectStatus: project.projectStatus || "Mobilised",
         }))
       );
-  
+
       setLoading(false);
     } catch (err) {
       console.error("Error fetching projects:", err);
       setLoading(false);
     }
   };
-  
 
   useEffect(() => {
     fetchAllChecklistItems();
@@ -350,14 +349,14 @@ export default function Dashboard() {
       alert("Please select at least one project");
       return;
     }
-  
+
     try {
       await axios.post("/api/routes/project?action=updateProjectStatus", {
         projectIds: selectedProjects,
         status: bulkStatus,
         createdBy: Cookies.get("email"),
       });
-  
+
       fetchProjects();
       fetchAllChecklistItems();
       setSelectedProjects([]);
@@ -367,7 +366,6 @@ export default function Dashboard() {
       alert("Failed to update project status");
     }
   };
-  
 
   const handleAskAI = async () => {
     if (!aiQuestion.trim()) {
@@ -971,10 +969,7 @@ export default function Dashboard() {
                       <Archive className="text-green-500" size={18} />
                     )}
                     <span className="font-medium text-[#003366]">{status}</span>
-                    
                   </div>
-
-                  
                 </div>
               ))}
             </div>
@@ -994,7 +989,6 @@ export default function Dashboard() {
                         projectId: projectToEdit._id,
                         status: projectToEdit.projectStatus,
                         createdBy: Cookies.get("email"),
-
                       }
                     );
                     fetchProjects();
@@ -1056,10 +1050,7 @@ export default function Dashboard() {
                     )}
                     <span className="font-medium text-[#003366]">{status}</span>
                   </div>
-
-                  
                 </div>
-                
               ))}
               {role === "Admin" && (
                 <div className="mb-4">
