@@ -179,13 +179,17 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
           folderId: currentPath[0],
           subfolderId: currentPath[currentPath.length - 1],
           fileUrl: data.path,
-          fileName: file.name
+          fileName: file.name,
+          email: Cookies.get("email")
+
         }
         : {
           projectId,
           folderId,
           fileUrl: data.path,
-          fileName: file.name
+          fileName: file.name,
+          email: Cookies.get("email")
+
         };
 
       const response = await fetch(apiEndpoint, {
@@ -271,7 +275,8 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
           fileId: file._id,
           folderId: currentPath.length > 0 ? currentPath[currentPath.length - 1] : null,
           isNested: currentPath.length > 1,
-          parentFolderId: currentPath.length > 1 ? currentPath[0] : null
+          parentFolderId: currentPath.length > 1 ? currentPath[0] : null,
+          email: Cookies.get("email")
         }),
       });
 
@@ -341,7 +346,8 @@ const FileBrowser = ({ folders: initialFolders, projectId }) => {
           newName: newFileName,
           folderId: currentPath.length > 0 ? currentPath[currentPath.length - 1] : null,
           isNested: currentPath.length > 1,
-          parentFolderId: currentPath.length > 1 ? currentPath[0] : null
+          parentFolderId: currentPath.length > 1 ? currentPath[0] : null,
+          email: Cookies.get("email")
         }),
       });
 
